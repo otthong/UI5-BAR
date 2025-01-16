@@ -1,0 +1,113 @@
+<mvc:View
+    id="masterView"
+    controllerName="ods4.controller.Master"
+    xmlns:m="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns:semantic="sap.f.semantic">
+    <m:Page id="detailPage">
+        <m:content>
+            <semantic:SemanticPage id="semanticPage" core:require="{
+                formatMessage: 'sap/base/strings/formatMessage',
+                DateType: 'sap/ui/model/type/Date'
+            }">
+                <semantic:titleHeading>
+                    <m:Title id="myTitle" text="{i18n>masterTitle}"/>
+                </semantic:titleHeading>
+                <semantic:content>
+                    <m:VBox id="myVBoxA"> 
+                        <!-- 搜索框 -->
+                        <m:SearchField id="mySF" width="100%" search="onSearch"/>
+
+                        <!-- 额外的表头行 -->
+                        <m:Toolbar id="extraToolbar">
+                            <m:ToolbarSpacer id="spacer1" width="25%"/> <!-- 调整宽度以匹配前四列 -->
+                            <m:Label id="labelSupplierA" text="Supplier Name A" class="sapUiSmallMarginBegin sapUiSmallMarginTop sapUiSmallMarginBottom" width="25%"/>
+                            <m:ToolbarSpacer id="spacer2" width="25%"/> <!-- 调整宽度以匹配中间两列 -->
+                            <m:Label id="labelSupplierB" text="Supplier Name B" class="sapUiSmallMarginBegin sapUiSmallMarginTop sapUiSmallMarginBottom" width="25%"/>
+                            <m:ToolbarSpacer id="spacer3" width="25%"/> <!-- 调整宽度以匹配最后两列 -->
+                        </m:Toolbar>
+
+                        <!-- 表格 -->
+                        <m:Table id="myTable" items="{/A_PurchaseOrder}">
+                            <m:columns>
+                                <m:Column id="ColumnA">
+                                    <m:Label id="LabelA" text="Purchase Order" />
+                                </m:Column>
+                                <m:Column id="ColumnB">
+                                    <m:Label id="LabelB" text="Company Code" />
+                                </m:Column>
+                                <m:Column id="ColumnC">
+                                    <m:Label id="LabelC" text="Purchase Order Type" />
+                                </m:Column>
+                                <m:Column id="ColumnD">
+                                    <m:Label id="LabelD" text="Creation Date" />
+                                </m:Column>
+                                <m:Column id="ColumnE">
+                                    <m:Label id="LabelE" text="Cash Discount 1 Days" />
+                                </m:Column>
+                                <m:Column id="ColumnF">
+                                    <m:Label id="LabelF" text="Cash Discount 1 Percent" />
+                                </m:Column>
+                                <m:Column id="ColumnG">
+                                    <m:Label id="LabelG" text="Award" />
+                                </m:Column>
+                                <m:Column id="ColumnH">
+                                    <m:Label id="LabelH" text="Cash Discount 2 Days" />
+                                </m:Column>
+                                <m:Column id="ColumnI">
+                                    <m:Label id="LabelI" text="Cash Discount 2 Percent" />
+                                </m:Column>
+                                <m:Column id="ColumnJ">
+                                    <m:Label id="LabelJ" text="Award" />
+                                </m:Column>
+                            </m:columns>
+                            <m:items>
+                              <m:ColumnListItem id="myCLT">
+                                <m:cells>
+                                  <m:Text id="TextA" text="{PurchaseOrder}" />
+                                  <m:Text id="TextB" text="{CompanyCode}" />
+                                  <m:Text id="TextC" text="{PurchaseOrderType}" />
+                                  <m:Text id="TextD" text="{CreationDate}" />
+                                  <m:VBox id="vBoxCashDiscount1">
+                                    <m:Text id="TextE" text="{CashDiscount1Days}" class="shallow-blue-background" />
+                                    <m:Label id="LabelRank1" text="{
+                                        parts: [
+                                            {path: 'CashDiscount1Days'},
+                                            {path: 'CashDiscount2Days'}
+                                        ],
+                                        formatter: '.formatRankLabel'
+                                    }" class="rank-label"/>
+                                  </m:VBox>
+                                  <m:Text id="TextF" text="{CashDiscount1Percent}" class="shallow-blue-background" />
+                                  <m:Text id="TextG" text="{Award1}" class="shallow-blue-background" /> <!-- 假设 Award 对应的字段名是 Award1 -->
+                                  <m:VBox id="vBoxCashDiscount2">
+                                    <m:Text id="TextH" text="{CashDiscount2Days}" class="shallow-orange-background" />
+                                    <m:Label id="LabelRank2" text="{
+                                        parts: [
+                                            {path: 'CashDiscount2Days'},
+                                            {path: 'CashDiscount1Days'}
+                                        ],
+                                        formatter: '.formatRankLabel'
+                                    }" class="rank-label"/>
+                                  </m:VBox>
+                                  <m:Text id="TextI" text="{CashDiscount2Percent}" class="shallow-orange-background" />
+                                  <m:Text id="TextJ" text="{Award2}" class="shallow-orange-background" /> <!-- 假设 Award 对应的字段名是 Award2 -->
+                                </m:cells>
+                              </m:ColumnListItem>
+                            </m:items>
+                        </m:Table>
+
+                        <!-- 复选框和按钮 -->
+                        <m:VBox id="myVBoxB" class="sapUiSmallMargin" alignItems="Center">
+                            <m:CheckBox id="CheckBoxText1" text="Text1" select="onText1Select" />
+                            <m:CheckBox id="CheckBoxText2" text="Text2" select="onText2Select" />
+                            <m:CheckBox id="CheckBoxText3" text="Text3" select="onText3Select" />
+                            <m:Button id="ConfirmButton" text="确认" press="onConfirmPress" enabled="false"/>
+                        </m:VBox>
+                    </m:VBox>
+                </semantic:content>
+            </semantic:SemanticPage>
+        </m:content>
+    </m:Page>
+</mvc:View>

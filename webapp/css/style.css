@@ -1,0 +1,16 @@
+/* style.css */
+.shallow-blue-background {
+    background-color: #96d3ef; /* 浅蓝色 */
+    color: black; /* 文字颜色为黑色 */
+}
+
+.shallow-orange-background {
+    background-color: #f1d8a1; /* 浅橘色 */
+    color: black; /* 文字颜色为黑色 */
+}
+
+.rank-label {
+    color: green;
+    font-size: 12px;
+    margin-top: 4px; /* 添加一些顶部间距 */
+}
