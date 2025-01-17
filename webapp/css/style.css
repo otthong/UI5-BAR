@@ -18,3 +18,8 @@
 #application-ods4-display{
     width: 100% !important
 }
+
+#application-ods4-display-component---detail--materialTable
+{
+    margin-top: 10px;
+}

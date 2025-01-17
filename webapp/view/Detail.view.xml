@@ -2,7 +2,9 @@
     controllerName="ods4.controller.Detail"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:t="sap.ui.table"
     xmlns:f="sap.f"
+    xmlns:form="sap.ui.layout.form"
     xmlns:core="sap.ui.core"
     xmlns:layout="sap.ui.layout">
     <f:DynamicPage>
@@ -15,31 +17,27 @@
         </f:title>
         <f:content>
             <VBox>
-                <Text text="RFP ID: {RFPID}" />
-                <Text text="Description: {Description}" />
-                <Text text="Status: {Status}" />
+            <form:SimpleForm
+			editable="false"
+			layout="ResponsiveGridLayout"
+			title="{i18n>basicData}"
+			labelSpanL="3"
+			labelSpanM="3"
+			emptySpanL="4"
+			emptySpanM="4"
+			columnsL="1"
+			columnsM="1" >
+			<form:content>
+				<Label text="RFP"></Label><Text text="{rfpDetail>/Internalid}" />
+                <Label text="Description"></Label><Text text="{rfpDetail>/Description}" />
+                <Label text="Status"></Label><Text text="{rfpDetail>/Status}" />
                 <!-- Add more fields as needed -->
+			</form:content>
+		    </form:SimpleForm>
+            
+            <t:Table id="materialTable" ariaLabelledBy="title" enableColumnFreeze="true" showColumnVisibilityMenu="true" selectionMode="Single">
+            </t:Table>
             </VBox>
-            <Table id="materialTable" items="{/Materials}">
-                <columns>
-                    <Column>
-                        <Text text="Material ID" />
-                    </Column>
-                    <Column>
-                        <Text text="Material Description" />
-                    </Column>
-                    <!-- Dynamic columns will be added here -->
-                </columns>
-                <items>
-                    <ColumnListItem>
-                        <cells>
-                            <Text text="{MaterialID}" />
-                            <Text text="{MaterialDescription}" />
-                            <!-- Dynamic cells will be added here -->
-                        </cells>
-                    </ColumnListItem>
-                </items>
-            </Table>
         </f:content>
     </f:DynamicPage>
 </mvc:View>

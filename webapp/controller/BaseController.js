@@ -58,6 +58,51 @@ sap.ui.define([
 			} else {
 				this.getRouter().navTo("master", {}, true);
 			}
+		},
+		addTableColumns: function(oTable, column){
+			if (column.Edit == true || column.Edit == "true") {
+				if ("CheckBox" == column.UIType) {
+					oTable.addColumn(new sap.ui.table.Column({
+						headerSpan: column.headerSpan ? column.headerSpan: "",
+						label: new sap.m.Text({
+							wrapping: false,
+							text: column.Title
+						}),
+						width: column.Width ? column.Width : "",
+						// visible: column.hidden == undefined || !column.hidden,
+						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						template: new sap.m.CheckBox().bindProperty("selected", column.Field),
+						filterProperty: column.Field
+					}));
+				} else {
+					oTable.addColumn(new sap.ui.table.Column({
+						headerSpan: column.headerSpan ? column.headerSpan: "",
+						label: new sap.m.Text({
+							wrapping: false,
+							text: column.Title
+						}),
+						width: column.Width ? column.Width : "",
+						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						template: new sap.m.Input().bindProperty("value", column.Field),
+						filterProperty: column.Field
+					}));
+				}
+			} else {
+				oTable.addColumn(new sap.ui.table.Column({
+					headerSpan: column.headerSpan ? column.headerSpan: "",
+					autoResizable: true,
+					flexible: false,
+					width: column.Width ? column.Width : "",
+					label: new sap.m.Text({
+						wrapping: false,
+						text: column.Title
+					}),
+					multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+					// visible: column.hidden == undefined || !column.hidden,
+					template: new sap.m.Text().bindProperty("text", column.Field).setWrapping(false),
+					filterProperty: column.Field
+				}));
+			}
 		}
 
 	});
