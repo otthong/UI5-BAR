@@ -1,0 +1,92 @@
+[
+    {
+      "Internalid" : "Doc152422851",
+      "Itemid" : "1",
+      "Supplier":"S1",
+      "Suppliername":"S1",
+      "Amount":"10",
+      "Currency":"CNY",
+      "Specification":"",
+      "Award":""
+    },
+    {
+      "Internalid" : "Doc152422851",
+      "Itemid" : "1",
+      "Supplier":"S2",
+      "Suppliername":"S2",
+      "Amount":"15",
+      "Currency":"CNY",
+      "Specification":"",
+      "Award":""
+    },
+    {
+        "Internalid" : "Doc152422851",
+        "Itemid" : "1",
+        "Supplier":"S3",
+        "Suppliername":"S3",
+        "Amount":"25",
+        "Currency":"CNY",
+        "Specification":"",
+        "Award":""
+    },
+    {
+        "Internalid" : "Doc152422851",
+        "Itemid" : "2",
+        "Supplier":"S1",
+        "Suppliername":"S1",
+        "Amount":"10",
+        "Currency":"CNY",
+        "Specification":"",
+        "Award":""
+      },
+      {
+        "Internalid" : "Doc152422851",
+        "Itemid" : "2",
+        "Supplier":"S2",
+        "Suppliername":"S2",
+        "Amount":"10",
+        "Currency":"CNY",
+        "Specification":"",
+        "Award":""
+      },
+      {
+        "Internalid" : "Doc152422852",
+        "Itemid" : "1",
+        "Supplier":"S1",
+        "Suppliername":"S1",
+        "Amount":"10",
+        "Currency":"CNY",
+        "Specification":"",
+        "Award":""
+      },
+      {
+        "Internalid" : "Doc152422852",
+        "Itemid" : "1",
+        "Supplier":"S2",
+        "Suppliername":"S2",
+        "Amount":"15",
+        "Currency":"CNY",
+        "Specification":"",
+        "Award":""
+      },
+      {
+          "Internalid" : "Doc152422852",
+          "Itemid" : "2",
+          "Supplier":"S1",
+          "Suppliername":"S1",
+          "Amount":"10",
+          "Currency":"CNY",
+          "Specification":"",
+          "Award":""
+        },
+        {
+          "Internalid" : "Doc152422852",
+          "Itemid" : "2",
+          "Supplier":"S2",
+          "Suppliername":"S2",
+          "Amount":"10",
+          "Currency":"CNY",
+          "Specification":"",
+          "Award":""
+        }
+]
