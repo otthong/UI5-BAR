@@ -24,6 +24,15 @@
                     "localUri": "localService/metadata.xml",
                     "odataVersion": "2.0"
                 }
+            },
+            "rfp":{
+                "uri": "/sap/opu/odata/sap/ZUI5SRVRFP_SRV/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "localUri": "localService/rfpmetadata.xml",
+                    "odataVersion": "2.0"
+                }
             }
         }
     },
@@ -65,6 +74,11 @@
             },
             "": {
                 "dataSource": "mainService",
+                "preload": true,
+                "settings": {}
+            },
+            "rfp": {
+                "dataSource": "rfp",
                 "preload": true,
                 "settings": {}
             }

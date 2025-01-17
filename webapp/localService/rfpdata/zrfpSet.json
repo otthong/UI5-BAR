@@ -1,0 +1,17 @@
+[
+        {
+          "Internalid" : "Doc152422851",
+          "Eventtypename" : "",
+          "Version" : "v2",
+          "Owner" : "",
+          "Title" : "创建标书",
+          "Description" : "创建标书",
+          "Status" : "P",
+          "zrfp_itemSet" : {
+            "__deferred" : {
+              "uri" : "http://vmsapapp60.demo.com:56000/sap/opu/odata/sap/ZUI5SRVRFP_SRV/zrfpSet('Doc152422851')/zrfp_itemSet"
+            }
+          }
+        }
+]
+

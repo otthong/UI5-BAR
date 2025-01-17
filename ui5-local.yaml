@@ -41,4 +41,8 @@ server:
             metadataPath: ./webapp/localService/metadata.xml
             mockdataPath: ./webapp/localService/data
             generateMockData: true
+          - urlPath: /sap/opu/odata/sap/ZUI5SRVRFP_SRV
+            metadataPath: ./webapp/localService/rfpmetadata.xml
+            mockdataPath: ./webapp/localService/data
+            generateMockData: true
         annotations: []
