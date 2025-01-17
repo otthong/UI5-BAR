@@ -22,7 +22,11 @@ sap.ui.define([
 			MessageToast.show("TODO: filter by Input");
 		},	
 		onRowNavigationPress: function(oEvent){
-			MessageToast.show( oEvent.getSource().getBindingContext("rfp").getProperty("Internalid") + " pressed");
+			var Internalid = oEvent.getSource().getBindingContext("rfp").getProperty("Internalid");
+			MessageToast.show( Internalid + " pressed");
+			
+			var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+			oRouter.navTo("detail", {"Internalid": Internalid});
 		}
 	});
 });

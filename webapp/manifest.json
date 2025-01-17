@@ -109,6 +109,11 @@
                     "target": [
                         "list"
                     ]
+                },
+                {
+                    "name": "detail",
+                    "pattern": "detail/{Internalid}",
+                    "target": "detail"
                 }
             ],
             "targets": {
@@ -123,6 +128,12 @@
                     "name": "list",
                     "viewName": "list",
                     "viewLevel": 1
+                },
+                "detail": {
+                    "id": "detail",
+                    "name": "detail",
+                    "viewName": "detail",
+                    "viewLevel": 1
                 }
             }
         },
@@ -135,6 +146,11 @@
             "viewName": "ods4.view.List",
             "type": "XML",
             "id": "list"
+        },
+        "detail": {
+            "viewName": "ods4.view.Detail",
+            "type": "XML",
+            "id": "detail"
         }
     }
 }
