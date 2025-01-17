@@ -107,7 +107,7 @@
                     "name": "RouteMaster",
                     "pattern": ":?query:",
                     "target": [
-                        "TargetMaster"
+                        "list"
                     ]
                 }
             ],
@@ -117,6 +117,12 @@
                     "name": "Master",
                     "viewName": "Master",
                     "viewLevel": 1
+                },
+                "list": {
+                    "id": "list",
+                    "name": "list",
+                    "viewName": "list",
+                    "viewLevel": 1
                 }
             }
         },
@@ -124,6 +130,11 @@
             "viewName": "ods4.view.App",
             "type": "XML",
             "id": "App"
+        },
+        "list": {
+            "viewName": "ods4.view.List",
+            "type": "XML",
+            "id": "list"
         }
     }
 }

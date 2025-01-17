@@ -1,0 +1,136 @@
+<mvc:View
+	controllerName="ods4.controller.List"
+	xmlns="sap.ui.table"
+	xmlns:f="sap.ui.layout.form"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:u="sap.ui.unified"
+	xmlns:c="sap.ui.core"
+	xmlns:m="sap.m"
+	height="100%">
+	<m:Page
+		showHeader="false"
+		enableScrolling="false"
+		class="sapUiContentPadding">
+		<f:SimpleForm editable="true" layout="ColumnLayout"
+                    columnsXL="4" columnsL="3" columnsM="2"
+                    singleContainerFullSize="false">
+					<f:toolbar>
+						<m:Toolbar id="TB1">
+							<m:Title id="Title1" text=""/>
+							<m:ToolbarSpacer />
+							<m:Button icon="sap-icon://search" text="查询" press="onSearchPress"/>
+						</m:Toolbar>
+					</f:toolbar>
+                    <f:content>
+					 <m:Label text="查询条件1" />
+                        <m:Input placeholder="Enter XXX1" value="{SearchCriteria>/selectProjId}">
+                        </m:Input>
+					</f:content>
+					<f:content>
+					 <m:Label text="查询条件1" />
+                        <m:Input placeholder="Enter XXX2" value="{SearchCriteria>/selectProjId}">
+                        </m:Input>
+					</f:content>
+		</f:SimpleForm>
+		<m:content>
+			<Table
+				id="table"
+				rows="{
+					path: 'rfp>/zrfpSet',
+					parameters: {operationMode: 'Server'}
+				}"
+				threshold="15"
+				scrollThreshold="50"
+				enableBusyIndicator="true"
+				selectionMode="Single"
+				rowActionCount="1"
+				ariaLabelledBy="title">
+				<noData>
+					<m:BusyIndicator class="sapUiMediumMargin"/>
+				</noData>
+				<extension>
+					<m:OverflowToolbar style="Clear">
+						<m:Title id="title" text="{i18n>list.Title}"/>
+						<m:ToolbarSpacer/>
+						<m:Button
+							icon="sap-icon://refresh"
+							tooltip="Reinitialize Model"
+							press="onModelRefresh"/>
+					</m:OverflowToolbar>
+				</extension>
+				<columns>
+					<Column
+						sortProperty="internalId"
+						filterProperty="internalId"
+						autoResizable="true">
+						<m:Label text="{i18n>internalId}"/>
+						<template>
+							<m:Text text="{rfp>Internalid}" wrapping="false" />
+						</template>
+					</Column>
+					<Column
+						sortProperty="eventTypeName"
+						filterProperty="eventTypeName"
+						autoResizable="true">
+						<m:Label text="{i18n>eventTypeName}"/>
+						<template>
+							<m:Text text="{rfp>Eventtypename}" wrapping="false" />
+						</template>
+					</Column>
+					<Column
+						sortProperty="version"
+						filterProperty="version"
+						autoResizable="true">
+						<m:Label text="{i18n>version}"/>
+						<template>
+							<m:Text text="{rfp>Version}" wrapping="false" />
+						</template>
+					</Column>
+					<Column
+						sortProperty="owner"
+						filterProperty="owner"
+						autoResizable="true">
+						<m:Label text="{i18n>owner}"/>
+						<template>
+							<m:Text text="{rfp>Owner}" wrapping="false" />
+						</template>
+					</Column>
+					<Column
+						sortProperty="Title"
+						filterProperty="Title"
+						autoResizable="true">
+						<m:Label text="{i18n>title}"/>
+						<template>
+							<m:Text text="{rfp>Title}" wrapping="false" />
+						</template>
+					</Column>
+					<Column
+						sortProperty="Description"
+						filterProperty="Description"
+						autoResizable="true">
+						<m:Label text="{i18n>description}"/>
+						<template>
+							<m:Text text="{rfp>Description}" wrapping="false" />
+						</template>
+					</Column>
+					<Column
+						sortProperty="Status"
+						filterProperty="Status"
+						autoResizable="true">
+						<m:Label text="{i18n>status}"/>
+						<template>
+							<m:Text text="{rfp>Status}" wrapping="false" />
+						</template>
+					</Column>
+				</columns>
+				<rowActionTemplate>
+					<RowAction>
+						<items>
+							<RowActionItem type="Navigation" press="onRowNavigationPress"/>
+						</items>
+					</RowAction>
+				</rowActionTemplate>
+			</Table>
+		</m:content>
+	</m:Page>
+</mvc:View>

@@ -1,11 +1,25 @@
 [
         {
           "Internalid" : "Doc152422851",
-          "Eventtypename" : "",
+          "Eventtypename" : "RFP",
           "Version" : "v2",
-          "Owner" : "",
+          "Owner" : "Jay",
           "Title" : "创建标书",
           "Description" : "创建标书",
+          "Status" : "P",
+          "zrfp_itemSet" : {
+            "__deferred" : {
+              "uri" : "http://vmsapapp60.demo.com:56000/sap/opu/odata/sap/ZUI5SRVRFP_SRV/zrfpSet('Doc152422851')/zrfp_itemSet"
+            }
+          }
+        },
+        {
+          "Internalid" : "Doc152422852",
+          "Eventtypename" : "RFP",
+          "Version" : "v2",
+          "Owner" : "Jay",
+          "Title" : "创建标书",
+          "Description" : "创建标书2",
           "Status" : "P",
           "zrfp_itemSet" : {
             "__deferred" : {

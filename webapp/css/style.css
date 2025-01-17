@@ -14,3 +14,7 @@
     font-size: 12px;
     margin-top: 4px; /* 添加一些顶部间距 */
 }
+
+#application-ods4-display{
+    width: 100% !important
+}
