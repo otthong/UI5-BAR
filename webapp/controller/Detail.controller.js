@@ -1,23 +1,24 @@
 sap.ui.define([
-    "./BaseController",
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/table/Column",
+    "sap/m/Label",
     "sap/m/Text",
-    'sap/m/MessageToast',
+    "sap/m/MessageToast",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator",
-], function (BaseController, Text,MessageToast,Filter,FilterOperator) {
+    "sap/ui/model/FilterOperator"
+], function (BaseController, Column, Label, Text, MessageToast, Filter, FilterOperator) {
     "use strict";
     var rfpOModel;
     return BaseController.extend("ods4.controller.Detail", {
-        _onDetailMatched: function(oEvent) {
-            // 获取路由参数
+        _onDetailMatched: function (oEvent) {
+            var that = this;
             var oParameters = oEvent.getParameter("arguments");
             var Internalid = oParameters.Internalid;
-            var that = this;
-            rfpOModel.read("/zrfpSet(Internalid='Doc152422851')",{
+            rfpOModel.read("/zrfpSet(Internalid='Doc152422851')", {
                 success: function (oData) {
                     console.log(oData);
                     var rfpModel = new sap.ui.model.json.JSONModel(oData);
-                    that.getView().setModel(rfpModel,"rfpDetail");
+                    that.getView().setModel(rfpModel, "rfpDetail");
                 },
                 error: function (oError) {
                     console.error("OData服务请求失败", oError);
@@ -27,54 +28,97 @@ sap.ui.define([
             this.genTable(Internalid);
         },
         onInit: function () {
-            rfpOModel = this.getOwnerComponent().getModel("rfp")
             var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
             oRouter.getRoute("detail").attachPatternMatched(this._onDetailMatched, this);
+            rfpOModel = this.getOwnerComponent().getModel("rfp");
         },
-        genTable:function(Internalid){
-            // Fetch supplier data (this could be from a model or an API call)
-            var oFilter1 = new Filter("Internalid",FilterOperator.EQ,"Doc152422852");
+        genTable: function (Internalid) {
             var that = this;
             var oTable = this.getView().byId("materialTable");
             oTable.destroyColumns();
             rfpOModel.read("/zrfp_item_priceSet", {
-                    filters: [oFilter1],
-                    success: function (oData) {
-                        console.log(oData);
-                        // MessageToast.show("接收到RFP数据: " + JSON.stringify(oData));
-                        var suppliners = [];
-                        oData.results.forEach(row => {
-                            if(!suppliners.includes(row.Supplier)){
-                                suppliners.push(row.Supplier)
+                filters: [
+                    new Filter("Internalid", FilterOperator.EQ, Internalid)
+                ],
+                success: function (oData) {
+                    console.log(oData);
+                    var processedData = [];
+                    var currentRow = null;
+                    var maxRepeats = 0;
+                    oData.results.forEach(function (item, index) {
+                        if (currentRow === null || currentRow.Internalid !== item.Internalid || currentRow.Itemid !== item.Itemid) {
+                            if (currentRow !== null) {
+                                processedData.push(currentRow);
+                                maxRepeats = Math.max(maxRepeats, currentRow.Specifications.length);
+                                console.log("Adding currentRow:", currentRow);
                             }
-                        });
-                        //Add dynamic columns based on suppliers
-                        if(suppliners){
-                            that.addTableColumns(oTable,{"Field":"MaterialId","Title":"物料", Width:"8em"});
-                            that.addTableColumns(oTable,{"Field":"MaterialDescription","Title":"物料描述", Width:"15em"});
-                            that.addTableColumns(oTable,{"Field":"Qty","Title":"数量", Width:"8em"});
-                            suppliners.forEach(suppliner =>{
-                                that.addTableColumns(oTable,{"Field":suppliner+"-Amount","Title":"Amount","Group":suppliner,"headerSpan":4, Width:"5em"});
-                                that.addTableColumns(oTable,{"Field":suppliner+"-Currency","Title":"Currency","Group":suppliner, Width:"3em"});
-                                that.addTableColumns(oTable,{"Field":suppliner+"-Specification","Title":"Specification","UIType":"Text","Edit":'true',"Group":suppliner, Width:"15em"});
-                                that.addTableColumns(oTable,{"Field":suppliner+"-Award","Title":"Award","UIType":"Text","Edit":'true',"Group":suppliner, Width:"8em"});
-                            })
-
-                            //绑定数据
-                            var oModel = new sap.ui.model.json.JSONModel({
-                                rows: [
-                                    { MaterialId: "Value 1", MaterialDescription: "Value A", Qty: "Value X", "S1-Amount": "Value P", "S1-Currency": "Value P" , "S1-Specification": "Value P" , "S1-Award": "Value P", "S2-Amount": "Value P2", "S2-Currency": "Value P2" , "S2-Specification": "Value 2" , "S2-Award": "Value P2" },
-                                ]
-                            });
-                            oTable.setModel(oModel);
-                            oTable.bindRows("/rows");
+                            currentRow = {
+                                Internalid: item.Internalid,
+                                Itemid: item.Itemid,
+                                Currency: item.Currency,
+                                Specifications: [item.Specification],
+                                Suppliers: [item.Supplier],
+                                Suppliernames: [item.Suppliername],
+                                Amounts: [item.Amount],
+                                Awards: [item.Award]
+                            };
+                        } else {
+                            currentRow.Specifications.push(item.Specification);
+                            currentRow.Suppliers.push(item.Supplier);
+                            currentRow.Suppliernames.push(item.Suppliername);
+                            currentRow.Amounts.push(item.Amount);
+                            currentRow.Awards.push(item.Award);
                         }
-                    },
-                    error: function (oError) {
-                        console.error("OData服务请求失败", oError);
-                        MessageToast.show("OData服务请求失败: " + oError.message);
+                    });
+                    if (currentRow !== null) {
+                        processedData.push(currentRow);
+                        maxRepeats = Math.max(maxRepeats, currentRow.Specifications.length);
+                        
                     }
-                });
+                    
+                    var columns = [
+                        { name: "Internalid", path: "Internalid" },
+                        { name: "Itemid", path: "Itemid" },
+                        { name: "Currency", path: "Currency" }
+                    ];
+                    for (var i = 0; i < maxRepeats; i++) {
+                        columns.push({ name: "Specification " + (i + 1), path: "Specifications", index: i });
+                        columns.push({ name: "Supplier " + (i + 1), path: "Suppliers", index: i });
+                        columns.push({ name: "Suppliername " + (i + 1), path: "Suppliernames", index: i });
+                        columns.push({ name: "Amount " + (i + 1), path: "Amounts", index: i });
+                        columns.push({ name: "Award " + (i + 1), path: "Awards", index: i });
+                    }
+                    columns.forEach(function (col) {
+                        oTable.addColumn(new Column({
+                            label: new Label({
+                                text: col.name
+                            }),
+                            template: new Text({
+                                text: {
+                                    path: col.path,
+                                    formatter: function (value, context) {
+                                        
+                                        var index = col.index;
+                                        if (Array.isArray(value) && index !== undefined) {
+                                            return index < value.length ? value[index] : "";
+                                        }
+                                        return value || "";
+                                    }
+                                }
+                            })
+                        }));
+                    });
+                    var oModel = new sap.ui.model.json.JSONModel({
+                        rows: processedData
+                    });
+                    oTable.setModel(oModel);
+                    oTable.bindRows("/rows");
+                },
+                error: function (oError) {
+                    console.error("OData服务请求失败", oError);
+                    MessageToast.show("OData服务请求失败: " + oError.message);
+                }
+            });
         }
     });
 });

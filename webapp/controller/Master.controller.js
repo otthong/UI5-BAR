@@ -13,11 +13,39 @@ sap.ui.define([
         onInit: function () {
             // 创建ODataModel实例
             var sServiceUrl = "http://localhost:8080/sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV/"; 
-            var oModel = new ODataModel(sServiceUrl, {
-                ignoreSSLErrors: true, // 忽略SSL证书错误
-                maxAge: 0
+            // var oModel = new ODataModel(sServiceUrl, {
+            //     ignoreSSLErrors: true, // 忽略SSL证书错误
+            //     maxAge: 0
+            // });
+
+             var oModel = this.getOwnerComponent().getModel("rfp");
+             oModel.read("/zrfpSet", {
+                success: function (oData) {
+                    console.log(oData);
+                },
+                error: function (oError) {
+                    console.error("OData服务请求失败", oError);
+                    MessageToast.show("OData服务请求失败: " + oError.message);
+                }
             });
-            
+            oModel.read("/zrfp_itemSet(Internalid='Doc152422851')", {
+                success: function (oData) {
+                    console.log(oData);
+                },
+                error: function (oError) {
+                    console.error("OData服务请求失败", oError);
+                    MessageToast.show("OData服务请求失败: " + oError.message);
+                }
+            });
+            oModel.read("/zrfp_item_priceSet(Internalid='Doc152422851',Itemid='')", {
+                success: function (oData) {
+                    console.log(oData);
+                },
+                error: function (oError) {
+                    console.error("OData服务请求失败", oError);
+                    MessageToast.show("OData服务请求失败: " + oError.message);
+                }
+            });
             this.getView().setModel(oModel); 
 
             // 检查OData服务是否正常
