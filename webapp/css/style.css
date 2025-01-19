@@ -23,3 +23,7 @@
 {
     margin-top: 10px;
 }
+
+.lowestPriceText {
+    color: green !important;
+}

@@ -144,6 +144,42 @@ sap.ui.define([
                     oModel.setProperty("SelectedAward1", false, oBindingContext);
                 }
             }
+        },
+
+        onInputChange: function (oEvent) {
+            var oSource = oEvent.getSource(); // 获取输入框控件
+            var sPath = oSource.getBindingContext().getPath(); // 获取绑定路径
+            var sValue = oEvent.getParameter("value"); // 获取输入框的值
+        
+            // 更新本地模型
+            this.getView().getModel().setProperty(sPath + "/YourProperty", sValue);
+        },
+
+        onSavePress: function () {
+            var oModel = this.getView().getModel(); // 获取 OData 模型
+            var that = this;
+        
+            // 获取所有更改的数据
+            var aChanges = oModel.getPendingChanges();
+        
+            if (Object.keys(aChanges).length === 0) {
+                MessageToast.show("没有需要保存的更改");
+                return;
+            }
+        
+            // 提交更改到后端
+            oModel.submitChanges({
+                success: function (oData) {
+                    // 保存成功
+                    MessageToast.show("保存成功");
+                    console.log("保存成功", oData);
+                },
+                error: function (oError) {
+                    // 保存失败
+                    MessageToast.show("保存失败: " + oError.message);
+                    console.error("保存失败", oError);
+                }
+            });
         }
     });
 });

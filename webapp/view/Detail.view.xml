@@ -6,7 +6,9 @@
     xmlns:f="sap.f"
     xmlns:form="sap.ui.layout.form"
     xmlns:core="sap.ui.core"
-    xmlns:layout="sap.ui.layout">
+    xmlns:layout="sap.ui.layout"
+    xmlns:html="http://www.w3.org/1999/xhtml">
+   
     <f:DynamicPage>
         <f:title>
             <f:DynamicPageTitle>
@@ -26,7 +28,6 @@
                         <ObjectAttribute title="RFP" text="{rfpDetail>/Internalid}" />
                         <ObjectAttribute title="Description" text="{rfpDetail>/Description}" />
                     </layout:VerticalLayout>
-
                     <layout:VerticalLayout>
                         <ObjectStatus title="Status" text="{rfpDetail>/Status}" state="Success" />
                     </layout:VerticalLayout>
@@ -35,31 +36,16 @@
         </f:header>
         <f:content>
             <VBox>
-                <!-- <form:SimpleForm
-                    editable="false"
-                    layout="ResponsiveGridLayout"
-                    title="{i18n>basicData}"
-                    labelSpanL="3"
-                    labelSpanM="3"
-                    emptySpanL="4"
-                    emptySpanM="4"
-                    columnsL="1"
-                    columnsM="1">
-                    <form:content>
-                        <Label text="RFP"></Label>
-                        <Text text="{rfpDetail>/Internalid}" />
-                        <Label text="Description"></Label>
-                        <Text text="{rfpDetail>/Description}" />
-                        <Label text="Status"></Label>
-                        <Text text="{rfpDetail>/Status}" />
-                    </form:content>
-                </form:SimpleForm> -->
-
-                <t:Table id="materialTable" ariaLabelledBy="title" enableColumnFreeze="true"
-                    showColumnVisibilityMenu="true" selectionMode="Single">
+                <t:Table
+                    id="materialTable"
+                    ariaLabelledBy="title"
+                    enableColumnFreeze="true"
+                    showColumnVisibilityMenu="true"
+                    selectionMode="Single"
+                    rows="{rfpDetail>/rows}">
+                    <!-- 动态列会在控制器中生成 -->
                 </t:Table>
             </VBox>
         </f:content>
-
     </f:DynamicPage>
 </mvc:View>

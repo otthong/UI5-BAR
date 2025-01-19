@@ -3,7 +3,12 @@ sap.ui.define([
     'sap/m/MessageToast',
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-], function (BaseController, MessageToast, Filter, FilterOperator) {
+    "sap/ui/table/Column",
+    "sap/m/Label",
+    "sap/m/Text",
+    "sap/m/Input",
+    "sap/m/VBox"
+], function (BaseController, MessageToast, Filter, FilterOperator, Column, Label, Text, Input, VBox) {
     "use strict";
     var rfpOModel;
     return BaseController.extend("ods4.controller.Detail", {
@@ -14,7 +19,6 @@ sap.ui.define([
             return rfpOModel;
         },
         _onDetailMatched: function (oEvent) {
-            // 获取路由参数
             var oParameters = oEvent.getParameter("arguments");
             var internalid = oParameters.Internalid;
             var that = this;
@@ -73,20 +77,32 @@ sap.ui.define([
         onInit: function () {
             var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
             oRouter.getRoute("detail").attachPatternMatched(this._onDetailMatched, this);
+        
+            // 获取 OData 模型
+            var oModel = this.getOwnerComponent().getModel("rfp");
+        
+            // 检查模型是否为 ODataModel
+            if (oModel instanceof sap.ui.model.odata.v2.ODataModel) {
+                // oModel.setDefaultUpdateMethod("PUT"); // 或 "MERGE"，根据后端支持选择
+                oModel.setRefreshAfterChange(true); // 保存后自动刷新模型
+            } else {
+                console.error("模型 'rfp' 不是 ODataModel 实例");
+            }
         },
         genTable: function (internalid) {
             this.readRfpItemDataAsync(internalid).then(rfpItemData => {
                 this.readRfpItemPriceDataAsync(internalid).then(rfpItemPriceData => {
-                    console.log(rfpItemData);
-                    console.log(rfpItemPriceData);
                     var rfpItems = rfpItemData.results;
-                    var suppliners = []; //统计一共有多少供应商
-                    //为每个物料添加供应商数据列
+                    var suppliners = [];
                     rfpItemPriceData.results.forEach(row => {
                         if (!suppliners.includes(row.Supplier)) {
-                            suppliners.push(row.Supplier)
+                            suppliners.push(row.Supplier);
                         }
                         let record = rfpItems.find(item => item.Internalid === row.Internalid && item.Itemid === row.Itemid);
+                        if (!record) {
+                            record = { Internalid: row.Internalid, Itemid: row.Itemid };
+                            rfpItems.push(record);
+                        }
                         record[row.Supplier + "-Supplier"] = row.Supplier;
                         record[row.Supplier + "-Amount"] = row.Amount;
                         record[row.Supplier + "-Currency"] = row.Currency;
@@ -94,38 +110,109 @@ sap.ui.define([
                         record[row.Supplier + "-Award"] = row.Award;
                         record[row.Supplier + "-Specification_Old"] = row.Specification;
                         record[row.Supplier + "-Award_Old"] = row.Award;
+
+                        if (!record.lowestPrice || row.Amount < record.lowestPrice) {
+                            record.lowestPrice = row.Amount;
+                            record.lowestPriceSupplier = row.Supplier;
+                        }
                     });
 
-                    //Add dynamic columns based on suppliers
                     var oTable = this.getView().byId("materialTable");
                     oTable.destroyColumns();
                     if (suppliners) {
-                        this.addTableColumns(oTable, { "Field": "Itemid", "Title": "{i18n>Itemid}", Width: "2em" });
-                        this.addTableColumns(oTable, { "Field": "Materialcode", "Title": "{i18n>materialCode}", Width: "8em" });
-                        this.addTableColumns(oTable, { "Field": "Itemdescription", "Title": "{i18n>Itemdescription}", Width: "15em" });
-                        this.addTableColumns(oTable, { "Field": "Quantity", "Title": "{i18n>Quantity}", Width: "4em" });
-                        suppliners.forEach(suppliner => {
-                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}", "Group": suppliner, "headerSpan": 4, Width: "5em" });
-                            this.addTableColumns(oTable, { "Field": suppliner + "-Currency", "Title": "{i18n>Currency}", "Group": suppliner, Width: "3em" });
-                            this.addTableColumns(oTable, { "Field": suppliner + "-Specification", "Title": "{i18n>Specification}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "15em" });
-                            this.addTableColumns(oTable, { "Field": suppliner + "-Award", "Title": "{i18n>Award}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "8em" });
-                        })
+                        oTable.addColumn(new Column({
+                            label: new Label({ text: "{i18n>Itemid}" }),
+                            template: new Text({ text: "{Itemid}" }),
+                            width: "2em"
+                        }));
+                        oTable.addColumn(new Column({
+                            label: new Label({ text: "{i18n>materialCode}" }),
+                            template: new Text({ text: "{Materialcode}" }),
+                            width: "8em"
+                        }));
+                        oTable.addColumn(new Column({
+                            label: new Label({ text: "{i18n>Itemdescription}" }),
+                            template: new Text({ text: "{Itemdescription}" }),
+                            width: "15em"
+                        }));
+                        oTable.addColumn(new Column({
+                            label: new Label({ text: "{i18n>Quantity}" }),
+                            template: new Text({ text: "{Quantity}" }),
+                            width: "4em"
+                        }));
 
-                        //绑定数据
-                        var oModel = new sap.ui.model.json.JSONModel({
-                            rows: rfpItems
+                        suppliners.forEach(suppliner => {
+                            oTable.addColumn(new Column({
+                                label: new Label({ text: suppliner + " {i18n>Amount}" }),
+                                template: this.createPriceTemplate(suppliner),
+                                width: "5em"
+                            }));
+                            oTable.addColumn(new Column({
+                                label: new Label({ text: suppliner + " {i18n>Currency}" }),
+                                template: new Text({ text: `{${suppliner}-Currency}` }),
+                                width: "3em"
+                            }));
+                            oTable.addColumn(new Column({
+                                label: new Label({ text: suppliner + " {i18n>Specification}" }),
+                                template: new Input({
+                                    value: `{${suppliner}-Specification}`,
+                                    editable: true
+                                }),
+                                width: "15em"
+                            }));
+                            oTable.addColumn(new Column({
+                                label: new Label({ text: suppliner + " {i18n>Award}" }),
+                                template: new Input({
+                                    value: `{${suppliner}-Award}`,
+                                    editable: true
+                                }),
+                                width: "8em"
+                            }));
                         });
+
+                        var oModel = new sap.ui.model.json.JSONModel({ rows: rfpItems });
                         oTable.setModel(oModel);
                         oTable.bindRows("/rows");
                     }
-                })
+                });
             });
         },
-        onSavePress: function(){
-            var oTable = this.getView().byId("materialTable");
-            MessageToast.show("TODO:Save by call odata"+JSON.stringify(oTable.getModel().getData()));
+        createPriceTemplate: function (supplier) {
+            return new VBox({
+                items: [
+                    new Text({
+                        text: `{${supplier}-Amount}`
+                    }),
+                    new Text({
+                        text: {
+                            path: `lowestPriceSupplier`,
+                            formatter: (lowestSupplier) => lowestSupplier === supplier ? "Rank 1 Lowest" : ""
+                        }
+                    }).addStyleClass("lowestPriceText")
+                ]
+            });
         },
-        onCancelPress: function(){
+        onSavePress: function () {
+            var oTable = this.getView().byId("materialTable");
+            var oModel = oTable.getModel(); // 获取绑定到表格的模型
+            var aData = oModel.getData().rows;
+
+            aData.forEach(function (oRow) {
+                if (oRow.__metadata) {
+                    var sEntityPath = oRow.__metadata.uri;
+                    delete oRow.__metadata;
+                    oModel.update(sEntityPath, oRow, {
+                        success: function (oData) {
+                            MessageToast.show("保存成功");
+                        },
+                        error: function (oError) {
+                            MessageToast.show("保存失败: " + oError.message);
+                        }
+                    });
+                }
+            });
+        },
+        onCancelPress: function () {
             this.onNavBack();
         }
     });
