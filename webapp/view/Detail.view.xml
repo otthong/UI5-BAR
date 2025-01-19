@@ -13,31 +13,53 @@
                 <f:heading>
                     <Title text="RFP Details" />
                 </f:heading>
+                <f:actions>
+                    <Button text="{i18n>Save}" type="Emphasized" press="onSavePress" />
+                    <Button text="{i18n>Cancel}" type="Transparent" press="onCancelPress" />
+                </f:actions>
             </f:DynamicPageTitle>
         </f:title>
+        <f:header>
+            <f:DynamicPageHeader pinnable="true">
+                <layout:HorizontalLayout allowWrapping="true">
+                    <layout:VerticalLayout class="sapUiMediumMarginEnd">
+                        <ObjectAttribute title="RFP" text="{rfpDetail>/Internalid}" />
+                        <ObjectAttribute title="Description" text="{rfpDetail>/Description}" />
+                    </layout:VerticalLayout>
+
+                    <layout:VerticalLayout>
+                        <ObjectStatus title="Status" text="{rfpDetail>/Status}" state="Success" />
+                    </layout:VerticalLayout>
+                </layout:HorizontalLayout>
+            </f:DynamicPageHeader>
+        </f:header>
         <f:content>
             <VBox>
-            <form:SimpleForm
-			editable="false"
-			layout="ResponsiveGridLayout"
-			title="{i18n>basicData}"
-			labelSpanL="3"
-			labelSpanM="3"
-			emptySpanL="4"
-			emptySpanM="4"
-			columnsL="1"
-			columnsM="1" >
-			<form:content>
-				<Label text="RFP"></Label><Text text="{rfpDetail>/Internalid}" />
-                <Label text="Description"></Label><Text text="{rfpDetail>/Description}" />
-                <Label text="Status"></Label><Text text="{rfpDetail>/Status}" />
-                <!-- Add more fields as needed -->
-			</form:content>
-		    </form:SimpleForm>
-            
-            <t:Table id="materialTable" ariaLabelledBy="title" enableColumnFreeze="true" showColumnVisibilityMenu="true" selectionMode="Single">
-            </t:Table>
+                <!-- <form:SimpleForm
+                    editable="false"
+                    layout="ResponsiveGridLayout"
+                    title="{i18n>basicData}"
+                    labelSpanL="3"
+                    labelSpanM="3"
+                    emptySpanL="4"
+                    emptySpanM="4"
+                    columnsL="1"
+                    columnsM="1">
+                    <form:content>
+                        <Label text="RFP"></Label>
+                        <Text text="{rfpDetail>/Internalid}" />
+                        <Label text="Description"></Label>
+                        <Text text="{rfpDetail>/Description}" />
+                        <Label text="Status"></Label>
+                        <Text text="{rfpDetail>/Status}" />
+                    </form:content>
+                </form:SimpleForm> -->
+
+                <t:Table id="materialTable" ariaLabelledBy="title" enableColumnFreeze="true"
+                    showColumnVisibilityMenu="true" selectionMode="Single">
+                </t:Table>
             </VBox>
         </f:content>
+
     </f:DynamicPage>
 </mvc:View>
