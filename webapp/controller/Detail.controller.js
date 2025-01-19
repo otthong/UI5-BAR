@@ -90,10 +90,13 @@ sap.ui.define([
             }
         },
         genTable: function (internalid) {
+            var that = this;
             this.readRfpItemDataAsync(internalid).then(rfpItemData => {
-                this.readRfpItemPriceDataAsync(internalid).then(rfpItemPriceData => {
-                    var rfpItems = rfpItemData.results;
+                that.readRfpItemPriceDataAsync(internalid).then(rfpItemPriceData => {
+                    var rfpItems = rfpItemData.results || [];
                     var suppliners = [];
+        
+                    // 处理供应商数据
                     rfpItemPriceData.results.forEach(row => {
                         if (!suppliners.includes(row.Supplier)) {
                             suppliners.push(row.Supplier);
@@ -103,77 +106,94 @@ sap.ui.define([
                             record = { Internalid: row.Internalid, Itemid: row.Itemid };
                             rfpItems.push(record);
                         }
-                        record[row.Supplier + "-Supplier"] = row.Supplier;
-                        record[row.Supplier + "-Amount"] = row.Amount;
-                        record[row.Supplier + "-Currency"] = row.Currency;
-                        record[row.Supplier + "-Specification"] = row.Specification;
-                        record[row.Supplier + "-Award"] = row.Award;
-                        record[row.Supplier + "-Specification_Old"] = row.Specification;
-                        record[row.Supplier + "-Award_Old"] = row.Award;
-
+                        record[row.Supplier + "Supplier"] = row.Supplier;
+                        record[row.Supplier + "Amount"] = row.Amount;
+                        record[row.Supplier + "Currency"] = row.Currency;
+                        record[row.Supplier + "Specification"] = row.Specification;
+                        record[row.Supplier + "Award"] = row.Award;
+                        record[row.Supplier + "Specification_Old"] = row.Specification;
+                        record[row.Supplier + "Award_Old"] = row.Award;
+        
                         if (!record.lowestPrice || row.Amount < record.lowestPrice) {
                             record.lowestPrice = row.Amount;
                             record.lowestPriceSupplier = row.Supplier;
                         }
                     });
-
-                    var oTable = this.getView().byId("materialTable");
+        
+                    // 获取表格控件并清空现有列
+                    var oTable = that.getView().byId("materialTable");
                     oTable.destroyColumns();
-                    if (suppliners) {
+        
+                    // 添加固定列
+                    oTable.addColumn(new Column({
+                        label: new Label({ text: "{i18n>Itemid}" }),
+                        template: new Text({ text: "{Itemid}" }),
+                        width: "2em"
+                    }));
+                    oTable.addColumn(new Column({
+                        label: new Label({ text: "{i18n>materialCode}" }),
+                        template: new Text({ text: "{Materialcode}" }),
+                        width: "8em"
+                    }));
+                    oTable.addColumn(new Column({
+                        label: new Label({ text: "{i18n>Itemdescription}" }),
+                        template: new Text({ text: "{Itemdescription}" }),
+                        width: "15em"
+                    }));
+                    oTable.addColumn(new Column({
+                        label: new Label({ text: "{i18n>Quantity}" }),
+                        template: new Text({ text: "{Quantity}" }),
+                        width: "4em"
+                    }));
+        
+                    // 动态添加供应商相关的列
+                    suppliners.forEach(suppliner => {
                         oTable.addColumn(new Column({
-                            label: new Label({ text: "{i18n>Itemid}" }),
-                            template: new Text({ text: "{Itemid}" }),
-                            width: "2em"
+                            label: new Label({ text: suppliner + " {i18n>Amount}" }),
+                            template: that.createPriceTemplate(suppliner),
+                            width: "5em"
                         }));
                         oTable.addColumn(new Column({
-                            label: new Label({ text: "{i18n>materialCode}" }),
-                            template: new Text({ text: "{Materialcode}" }),
-                            width: "8em"
+                            label: new Label({ text: suppliner + " {i18n>Currency}" }),
+                            template: new Text({ text: `{${suppliner}Currency}` }),
+                            width: "3em"
                         }));
                         oTable.addColumn(new Column({
-                            label: new Label({ text: "{i18n>Itemdescription}" }),
-                            template: new Text({ text: "{Itemdescription}" }),
+                            label: new Label({ text: suppliner + " {i18n>Specification}" }),
+                            template: new Input({
+                                value: `{${suppliner}Specification}`,
+                                editable: true,
+                                liveChange: function (oEvent) {
+                                    var oSource = oEvent.getSource();
+                                    var sPath = oSource.getBindingContext().getPath();
+                                    var sValue = oEvent.getParameter("value");
+                                    var oModel = oSource.getModel();
+                                    oModel.setProperty(sPath + `/${suppliner}Specification`, sValue);
+                                }
+                            }),
                             width: "15em"
                         }));
                         oTable.addColumn(new Column({
-                            label: new Label({ text: "{i18n>Quantity}" }),
-                            template: new Text({ text: "{Quantity}" }),
-                            width: "4em"
+                            label: new Label({ text: suppliner + " {i18n>Award}" }),
+                            template: new Input({
+                                value: `{${suppliner}Award}`,
+                                editable: true,
+                                liveChange: function (oEvent) {
+                                    var oSource = oEvent.getSource();
+                                    var sPath = oSource.getBindingContext().getPath();
+                                    var sValue = oEvent.getParameter("value");
+                                    var oModel = oSource.getModel();
+                                    oModel.setProperty(sPath + `/${suppliner}Award`, sValue);
+                                }
+                            }),
+                            width: "8em"
                         }));
-
-                        suppliners.forEach(suppliner => {
-                            oTable.addColumn(new Column({
-                                label: new Label({ text: suppliner + " {i18n>Amount}" }),
-                                template: this.createPriceTemplate(suppliner),
-                                width: "5em"
-                            }));
-                            oTable.addColumn(new Column({
-                                label: new Label({ text: suppliner + " {i18n>Currency}" }),
-                                template: new Text({ text: `{${suppliner}-Currency}` }),
-                                width: "3em"
-                            }));
-                            oTable.addColumn(new Column({
-                                label: new Label({ text: suppliner + " {i18n>Specification}" }),
-                                template: new Input({
-                                    value: `{${suppliner}-Specification}`,
-                                    editable: true
-                                }),
-                                width: "15em"
-                            }));
-                            oTable.addColumn(new Column({
-                                label: new Label({ text: suppliner + " {i18n>Award}" }),
-                                template: new Input({
-                                    value: `{${suppliner}-Award}`,
-                                    editable: true
-                                }),
-                                width: "8em"
-                            }));
-                        });
-
-                        var oModel = new sap.ui.model.json.JSONModel({ rows: rfpItems });
-                        oTable.setModel(oModel);
-                        oTable.bindRows("/rows");
-                    }
+                    });
+        
+                    // 将数据绑定到表格
+                    var oJsonModel = new sap.ui.model.json.JSONModel({ rows: rfpItems });
+                    oTable.setModel(oJsonModel);
+                    oTable.bindRows("/rows");
                 });
             });
         },
@@ -193,22 +213,51 @@ sap.ui.define([
             });
         },
         onSavePress: function () {
+            console.log("onSavePress 方法被触发");
+        
+            // 获取 ODataModel
+            var oRfpModel = this.getRfpModel();
+            console.log("获取到的模型实例：", oRfpModel);
+            console.log("模型是否为 ODataModel v2：", oRfpModel instanceof sap.ui.model.odata.v2.ODataModel);
+        
+            if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
+                console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
+                return;
+            }
+        
+            // 获取表格数据
             var oTable = this.getView().byId("materialTable");
-            var oModel = oTable.getModel(); // 获取绑定到表格的模型
-            var aData = oModel.getData().rows;
-
+            var oJsonModel = oTable.getModel();
+            var aData = oJsonModel.getData().rows;
+        
+            // 遍历表格数据，更新每一行
             aData.forEach(function (oRow) {
-                if (oRow.__metadata) {
-                    var sEntityPath = oRow.__metadata.uri;
-                    delete oRow.__metadata;
-                    oModel.update(sEntityPath, oRow, {
-                        success: function (oData) {
-                            MessageToast.show("保存成功");
+                // 确保每一行都有 Internalid 和 Itemid
+                if (oRow.Internalid && oRow.Itemid) {
+                    // 构造更新路径
+                    var sEntityPath = "/zrfp_itemSet(Internalid='" + oRow.Internalid + "',Itemid='" + oRow.Itemid + "')";
+        
+                    // 确保传递的数据对象中包含所有需要更新的字段
+                    var oUpdateData = {
+                        Internalid: oRow.Internalid,
+                        Itemid: oRow.Itemid,
+                        Itemdescription: oRow.Itemdescription,
+                        Materialcode: oRow.Materialcode,
+                        Quantity: oRow.Quantity,
+                        Unit: oRow.Unit
+                    };
+        
+                    // 执行更新操作
+                    oRfpModel.update(sEntityPath, oUpdateData, {
+                        success: function () {
+                            console.log("更新成功：", sEntityPath);
                         },
                         error: function (oError) {
-                            MessageToast.show("保存失败: " + oError.message);
+                            console.error("更新失败：", oError, "路径：", sEntityPath);
                         }
                     });
+                } else {
+                    console.error("缺少必要的键值 Internalid 或 Itemid，无法更新：", oRow);
                 }
             });
         },
