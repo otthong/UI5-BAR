@@ -145,7 +145,7 @@ sap.ui.define([
                         template: new Text({ text: "{Quantity}" }),
                         width: "4em"
                     }));
-        
+
                     // 动态添加供应商相关的列
                     suppliners.forEach(suppliner => {
                         oTable.addColumn(new Column({
@@ -261,8 +261,8 @@ sap.ui.define([
                 }
             });
         },
-        onCancelPress: function () {
-            this.onNavBack();
+        onSendPress: function () {
+            MessageToast.show("TODO:onSendPress");
         }
     });
 });

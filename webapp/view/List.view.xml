@@ -18,17 +18,22 @@
 						<m:Toolbar id="TB1">
 							<m:Title id="Title1" text=""/>
 							<m:ToolbarSpacer />
-							<m:Button icon="sap-icon://search" text="查询" press="onSearchPress"/>
+							<m:Button icon="sap-icon://search" text="{i18n>search}" press="onSearchPress"/>
 						</m:Toolbar>
 					</f:toolbar>
                     <f:content>
-					 <m:Label text="查询条件1" />
-                        <m:Input placeholder="Enter XXX1" value="{SearchCriteria>/selectProjId}">
+					 <m:Label text="{i18n>internalId}" />
+                        <m:Input placeholder="{i18n>internalId}" value="{SearchCriteria>/InternalId}">
                         </m:Input>
 					</f:content>
 					<f:content>
-					 <m:Label text="查询条件1" />
-                        <m:Input placeholder="Enter XXX2" value="{SearchCriteria>/selectProjId}">
+					 <m:Label text="{i18n>description}" />
+                        <m:Input placeholder="{i18n>description}" value="{SearchCriteria>/Description}">
+                        </m:Input>
+					</f:content>
+					<f:content>
+					 <m:Label text="{i18n>Owner}" />
+                        <m:Input placeholder="{i18n>Owner}" value="{SearchCriteria>/Owner}">
                         </m:Input>
 					</f:content>
 		</f:SimpleForm>
@@ -44,7 +49,8 @@
 				enableBusyIndicator="true"
 				selectionMode="Single"
 				rowActionCount="1"
-				ariaLabelledBy="title">
+				ariaLabelledBy="title"
+				noData="no Data">
 				<noData>
 					<m:BusyIndicator class="sapUiMediumMargin"/>
 				</noData>
