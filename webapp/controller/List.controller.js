@@ -1,5 +1,5 @@
 sap.ui.define([
-	"sap/ui/core/mvc/Controller",
+	"./BaseController",
 	"sap/ui/model/odata/v2/ODataModel",
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/model/Filter",
@@ -8,18 +8,45 @@ sap.ui.define([
 	"sap/ui/core/Fragment",
 	'sap/m/MessageToast'
 
-], function(Controller, ODataModel, JSONModel, Filter, FilterOperator, Sorter, Fragment, MessageToast) {
+], function(BaseController, ODataModel, JSONModel, Filter, FilterOperator, Sorter, Fragment, MessageToast) {
 	"use strict";
-	return Controller.extend("ods4.controller.List", {
-
+	var rfpOModel;
+	return BaseController.extend("ods4.controller.List", {
+		getRfpModel: function () {
+            if (!rfpOModel) {
+                rfpOModel = this.getOwnerComponent().getModel("rfp");
+            }
+            return rfpOModel;
+        },
 		onInit: function() {
-			var oModel = this.getOwnerComponent().getModel("rfp");
 			this._mDialogs = {};
 			this.aMessageFilters = [];
+			var searchCriteria = new JSONModel({"InternalId":"","Description":"","Owner":""});
+			this.getView().setModel(searchCriteria,"SearchCriteria");
+			var oModel = this.getOwnerComponent().getModel("rfp");
 			this.getView().setModel(oModel,"rfp");
 		},
 		onSearchPress: function(){
-			MessageToast.show("TODO: filter by Input");
+			var SearchCriteriaModel = this.getView().getModel("SearchCriteria");
+			var SearchCriteria = SearchCriteriaModel.oData;
+			var oTable = this.getView().byId("table");
+			var oFilter;
+			var oFilters = [];
+			if(SearchCriteria){
+				if(SearchCriteria.InternalId){
+					oFilter = new Filter("Internalid", FilterOperator.Contains, SearchCriteria.InternalId);
+					oFilters.push(oFilter);
+				}
+				if(SearchCriteria.Description){
+					oFilter = new Filter("Description", FilterOperator.Contains, SearchCriteria.Description);
+					oFilters.push(oFilter);
+				}
+				if(SearchCriteria.Owner){
+					oFilter = new Filter("Owner", FilterOperator.Contains, SearchCriteria.Owner);
+					oFilters.push(oFilter);
+				}
+			}
+			oTable.getBinding().filter(oFilters);
 		},	
 		onRowNavigationPress: function(oEvent){
 			var Internalid = oEvent.getSource().getBindingContext("rfp").getProperty("Internalid");

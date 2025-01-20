@@ -33,3 +33,7 @@
     color: green;
     
 }
+.footerRowStyle .footerRow {
+    background-color: black;
+    color: white; /* 如果需要文本也显示为白色 */
+}

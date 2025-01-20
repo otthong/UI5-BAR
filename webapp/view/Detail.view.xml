@@ -17,7 +17,7 @@
                 </f:heading>
                 <f:actions>
                     <Button text="{i18n>Save}" type="Emphasized" press="onSavePress" />
-                    <Button text="{i18n>Cancel}" type="Transparent" press="onCancelPress" />
+                    <Button text="{i18n>Send}" type="Transparent" press="onSendPress" />
                 </f:actions>
             </f:DynamicPageTitle>
         </f:title>
@@ -25,11 +25,15 @@
             <f:DynamicPageHeader pinnable="true">
                 <layout:HorizontalLayout allowWrapping="true">
                     <layout:VerticalLayout class="sapUiMediumMarginEnd">
-                        <ObjectAttribute title="RFP" text="{rfpDetail>/Internalid}" />
-                        <ObjectAttribute title="Description" text="{rfpDetail>/Description}" />
+                        <ObjectAttribute title="{i18n>internalId}" text="{rfpDetail>/Internalid}" />
+                        <ObjectAttribute title="{i18n>Version}" text="{rfpDetail>/Version}" />
+                        <ObjectStatus title="{i18n>Status}" text="{rfpDetail>/Status}" state="Success" />
+                        
                     </layout:VerticalLayout>
                     <layout:VerticalLayout>
-                        <ObjectStatus title="Status" text="{rfpDetail>/Status}" state="Success" />
+                        <ObjectAttribute title="{i18n>eventTypeName}" text="{rfpDetail>/Eventtypename}" />
+                        <ObjectStatus title="{i18n>Owner}" text="{rfpDetail>/Owner}" state="Success" />
+                        <ObjectAttribute title="{i18n>Description}" text="{rfpDetail>/Description}" />
                     </layout:VerticalLayout>
                 </layout:HorizontalLayout>
             </f:DynamicPageHeader>
@@ -42,6 +46,7 @@
                     enableColumnFreeze="true"
                     showColumnVisibilityMenu="true"
                     selectionMode="Single"
+                    alternateRowColors="true"
                     rows="{rfpDetail>/rows}">
                     <!-- 动态列会在控制器中生成 -->
                 </t:Table>
