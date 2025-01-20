@@ -28,7 +28,11 @@
                         <ObjectAttribute title="{i18n>internalId}" text="{rfpDetail>/Internalid}" />
                         <ObjectAttribute title="{i18n>Version}" text="{rfpDetail>/Version}" />
                         <ObjectStatus title="{i18n>Status}" text="{rfpDetail>/Status}" state="Success" />
-                        
+                        <!-- <ObjectListItem number="87.50">
+                            <firstStatus>
+                                <ObjectStatus text="Rank 1 Lowest" state="Success" />
+                            </firstStatus>
+                        </ObjectListItem> -->
                     </layout:VerticalLayout>
                     <layout:VerticalLayout>
                         <ObjectAttribute title="{i18n>eventTypeName}" text="{rfpDetail>/Eventtypename}" />
