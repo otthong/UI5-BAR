@@ -10,13 +10,9 @@ sap.ui.define([
 
 ], function(BaseController, ODataModel, JSONModel, Filter, FilterOperator, Sorter, Fragment, MessageToast) {
 	"use strict";
-	var rfpOModel;
 	return BaseController.extend("ods4.controller.List", {
 		getRfpModel: function () {
-            if (!rfpOModel) {
-                rfpOModel = this.getOwnerComponent().getModel("rfp");
-            }
-            return rfpOModel;
+            return this.getOwnerComponent().getModel("rfp");
         },
 		onInit: function() {
 			this._mDialogs = {};

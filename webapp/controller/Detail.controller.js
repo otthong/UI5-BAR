@@ -3,20 +3,13 @@ sap.ui.define([
     'sap/m/MessageToast',
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/table/Column",
-    "sap/m/Label",
-    "sap/m/Text",
-    "sap/m/Input",
-    "sap/m/VBox"
-], function (BaseController, MessageToast, Filter, FilterOperator, Column, Label, Text, Input, VBox) {
+    "sap/ui/core/format/NumberFormat"
+], function (BaseController, MessageToast, Filter, FilterOperator,NumberFormat) {
     "use strict";
-    var rfpOModel;
+    var suppliners;
     return BaseController.extend("ods4.controller.Detail", {
         getRfpModel: function () {
-            if (!rfpOModel) {
-                rfpOModel = this.getOwnerComponent().getModel("rfp");
-            }
-            return rfpOModel;
+            return this.getOwnerComponent().getModel("rfp");
         },
         _onDetailMatched: function (oEvent) {
             var oParameters = oEvent.getParameter("arguments");
@@ -76,8 +69,7 @@ sap.ui.define([
         },
         onInit: function () {
             var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
-            oRouter.getRoute("detail").attachPatternMatched(this._onDetailMatched, this);
-        
+            oRouter.getRoute("detail").attachPatternMatched(this._onDetailMatched, this);        
             // 获取 OData 模型
             var oModel = this.getOwnerComponent().getModel("rfp");
         
@@ -90,136 +82,74 @@ sap.ui.define([
             }
         },
         genTable: function (internalid) {
-            var that = this;
             this.readRfpItemDataAsync(internalid).then(rfpItemData => {
-                that.readRfpItemPriceDataAsync(internalid).then(rfpItemPriceData => {
-                    var rfpItems = rfpItemData.results || [];
-                    var suppliners = [];
-        
-                    // 处理供应商数据
+                this.readRfpItemPriceDataAsync(internalid).then(rfpItemPriceData => {
+                    console.log(rfpItemData);
+                    console.log(rfpItemPriceData);
+                    var rfpItems = rfpItemData.results;
+                    suppliners = []; //统计一共有多少供应商
+                    //为每个物料添加供应商数据列
                     rfpItemPriceData.results.forEach(row => {
                         if (!suppliners.includes(row.Supplier)) {
-                            suppliners.push(row.Supplier);
+                            suppliners.push(row.Supplier)
                         }
                         let record = rfpItems.find(item => item.Internalid === row.Internalid && item.Itemid === row.Itemid);
-                        if (!record) {
-                            record = { Internalid: row.Internalid, Itemid: row.Itemid };
-                            rfpItems.push(record);
-                        }
-                        record[row.Supplier + "Supplier"] = row.Supplier;
-                        record[row.Supplier + "Amount"] = row.Amount;
-                        record[row.Supplier + "Currency"] = row.Currency;
-                        record[row.Supplier + "Specification"] = row.Specification;
-                        record[row.Supplier + "Award"] = row.Award;
-                        record[row.Supplier + "Specification_Old"] = row.Specification;
-                        record[row.Supplier + "Award_Old"] = row.Award;
-        
+                        record[row.Supplier + "-Supplier"] = row.Supplier;
+                        record[row.Supplier + "-Amount"] = row.Amount;
+                        record[row.Supplier + "-TotalAmount"] = row.Amount*record.Quantity;
+                        record[row.Supplier + "-Currency"] = row.Currency;
+                        record[row.Supplier + "-Specification"] = row.Specification;
+                        record[row.Supplier + "-Award"] = row.Award;
+                        record[row.Supplier + "-Specification_Old"] = row.Specification;
+                        record[row.Supplier + "-Award_Old"] = row.Award;
+
                         if (!record.lowestPrice || row.Amount < record.lowestPrice) {
                             record.lowestPrice = row.Amount;
                             record.lowestPriceSupplier = row.Supplier;
                         }
                     });
-        
-                    // 获取表格控件并清空现有列
-                    var oTable = that.getView().byId("materialTable");
-                    oTable.destroyColumns();
-        
-                    // 添加固定列
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>Itemid}" }),
-                        template: new Text({ text: "{Itemid}" }),
-                        width: "2em"
-                    }));
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>materialCode}" }),
-                        template: new Text({ text: "{Materialcode}" }),
-                        width: "8em"
-                    }));
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>Itemdescription}" }),
-                        template: new Text({ text: "{Itemdescription}" }),
-                        width: "15em"
-                    }));
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>Quantity}" }),
-                        template: new Text({ text: "{Quantity}" }),
-                        width: "4em"
-                    }));
 
-                    // 动态添加供应商相关的列
-                    suppliners.forEach(suppliner => {
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Amount}" }),
-                            template: that.createPriceTemplate(suppliner),
-                            width: "5em"
-                        }));
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Currency}" }),
-                            template: new Text({ text: `{${suppliner}Currency}` }),
-                            width: "3em"
-                        }));
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Specification}" }),
-                            template: new Input({
-                                value: `{${suppliner}Specification}`,
-                                editable: true,
-                                liveChange: function (oEvent) {
-                                    var oSource = oEvent.getSource();
-                                    var sPath = oSource.getBindingContext().getPath();
-                                    var sValue = oEvent.getParameter("value");
-                                    var oModel = oSource.getModel();
-                                    oModel.setProperty(sPath + `/${suppliner}Specification`, sValue);
-                                }
-                            }),
-                            width: "15em"
-                        }));
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Award}" }),
-                            template: new Input({
-                                value: `{${suppliner}Award}`,
-                                editable: true,
-                                liveChange: function (oEvent) {
-                                    var oSource = oEvent.getSource();
-                                    var sPath = oSource.getBindingContext().getPath();
-                                    var sValue = oEvent.getParameter("value");
-                                    var oModel = oSource.getModel();
-                                    oModel.setProperty(sPath + `/${suppliner}Award`, sValue);
-                                }
-                            }),
-                            width: "8em"
-                        }));
-                    });
-        
-                    // 将数据绑定到表格
-                    var oJsonModel = new sap.ui.model.json.JSONModel({ rows: rfpItems });
-                    oTable.setModel(oJsonModel);
-                    oTable.bindRows("/rows");
-                });
+                    //Add dynamic columns based on suppliers
+                    var oTable = this.getView().byId("materialTable");
+                    oTable.destroyColumns();
+                    if (suppliners) {
+                        this.addTableColumns(oTable, { "Field": "Itemid", "Title": "{i18n>Itemid}", Width: "3em" });
+                        this.addTableColumns(oTable, { "Field": "Materialcode", "Title": "{i18n>materialCode}", Width: "8em" });
+                        this.addTableColumns(oTable, { "Field": "Itemdescription", "Title": "{i18n>Itemdescription}", Width: "15em" });
+                        this.addTableColumns(oTable, { "Field": "Quantity", "Title": "{i18n>Quantity}", Width: "6em" });
+                        suppliners.forEach(suppliner => {
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}", "UIType":"LOWEST_SUPPLIER", "Group": suppliner, "headerSpan": 5, Width: "7em"});//ObjectListItem
+                            this.addTableColumns(oTable, { "Field": suppliner + "-TotalAmount", "Title": "{i18n>TotalAmount}", "Group": suppliner, Width: "5em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Currency", "Title": "{i18n>Currency}", "Group": suppliner, Width: "3em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Specification", "Title": "{i18n>Specification}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "15em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Award", "Title": "{i18n>Award}", "UIType": "PERCENTAGE", "Edit": 'true', "Group": suppliner, Width: "8em" });
+                        })
+
+                        //绑定数据
+                        var oModel = new sap.ui.model.json.JSONModel({
+                            rows: rfpItems
+                        });
+                        oTable.setModel(oModel);
+                        oTable.bindRows("/rows");
+                    }
+                })
             });
         },
-        createPriceTemplate: function (supplier) {
-            return new VBox({
-                items: [
-                    new Text({
-                        text: `{${supplier}-Amount}`
-                    }),
-                    new Text({
-                        text: {
-                            path: `lowestPriceSupplier`,
-                            formatter: (lowestSupplier) => lowestSupplier === supplier ? "Rank 1 Lowest" : ""
-                        }
-                    }).addStyleClass("lowestPriceText")
-                ]
-            });
+        formatLowestPrice: function(price,lowestPrice){
+            if(price === lowestPrice)
+			    return "Rank 1 Lowest";
+            else
+                return "";
         },
-        onSavePress: function () {
-            console.log("onSavePress 方法被触发");
-        
+        formatPercentage: function (value) {
+            if (value === undefined || value === null) {
+                return "";
+            }
+            return NumberFormat.getPercentInstance().format(value);
+        },
+        onSavePress: function(){
             // 获取 ODataModel
-            var oRfpModel = this.getRfpModel();
-            console.log("获取到的模型实例：", oRfpModel);
-            console.log("模型是否为 ODataModel v2：", oRfpModel instanceof sap.ui.model.odata.v2.ODataModel);
-        
+            var oRfpModel = this.getRfpModel();        
             if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
                 console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
                 return;
@@ -229,40 +159,55 @@ sap.ui.define([
             var oTable = this.getView().byId("materialTable");
             var oJsonModel = oTable.getModel();
             var aData = oJsonModel.getData().rows;
-        
-            // 遍历表格数据，更新每一行
+            //遍历所有数据获取有更新的记录
+            var zrfpItemPriceChanged = []
             aData.forEach(function (oRow) {
-                // 确保每一行都有 Internalid 和 Itemid
-                if (oRow.Internalid && oRow.Itemid) {
+                var Internalid= oRow["Internalid"];
+                var Itemid= oRow["Itemid"];
+                suppliners.forEach(s=>{
+                    var supplier = oRow[s+"-Supplier"];
+                    if(supplier){
+                        var Award = oRow[s+"-Award"];
+                        var Award_Old = oRow[s+"-Award_Old"];
+                        var Specification = oRow[s+"-Specification"];
+                        var Specification_Old = oRow[s+"-Specification_Old"];
+                        if(Award != Award_Old || Specification != Specification_Old){
+                            zrfpItemPriceChanged.push({
+                                "Internalid":Internalid,
+                                "Itemid":Itemid,
+                                "Supplier":supplier,
+                                "Specification":Specification,
+                                "Award":Award,
+                            })
+
+                        }
+                    }
+                })
+                //TODO: 检查同一个物料配额的和必须等于0或100%
+            });
+
+            if(zrfpItemPriceChanged && zrfpItemPriceChanged.length>0){
+                zrfpItemPriceChanged.forEach(row=>{
                     // 构造更新路径
-                    var sEntityPath = "/zrfp_itemSet(Internalid='" + oRow.Internalid + "',Itemid='" + oRow.Itemid + "')";
-        
-                    // 确保传递的数据对象中包含所有需要更新的字段
-                    var oUpdateData = {
-                        Internalid: oRow.Internalid,
-                        Itemid: oRow.Itemid,
-                        Itemdescription: oRow.Itemdescription,
-                        Materialcode: oRow.Materialcode,
-                        Quantity: oRow.Quantity,
-                        Unit: oRow.Unit
-                    };
-        
+                    var sEntityPath = "/zrfp_item_priceSet(Internalid='" + row.Internalid + "',Itemid='" + row.Itemid + "',Supplier='"+row.Supplier+"')";
                     // 执行更新操作
-                    oRfpModel.update(sEntityPath, oUpdateData, {
+                    oRfpModel.update(sEntityPath, row, {
                         success: function () {
                             console.log("更新成功：", sEntityPath);
+                            MessageToast.show("更新成功");
                         },
                         error: function (oError) {
                             console.error("更新失败：", oError, "路径：", sEntityPath);
+                            MessageToast.show("更新失败");
                         }
                     });
-                } else {
-                    console.error("缺少必要的键值 Internalid 或 Itemid，无法更新：", oRow);
-                }
-            });
+                })
+            }else{
+                MessageToast.show("您没有修改任何数据!"); 
+            }
         },
         onSendPress: function () {
-            MessageToast.show("TODO:onSendPress");
+            MessageToast.show("TODO:onSendPress，需要确定ariba接口");
         }
     });
 });

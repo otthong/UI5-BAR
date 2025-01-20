@@ -74,6 +74,25 @@ sap.ui.define([
 						template: new sap.m.CheckBox().bindProperty("selected", column.Field),
 						filterProperty: column.Field
 					}));
+				} else if("PERCENTAGE" == column.UIType){
+					oTable.addColumn(new sap.ui.table.Column({
+						headerSpan: column.headerSpan ? column.headerSpan: "",
+						label: new sap.m.Text({
+							wrapping: false,
+							text: column.Title
+						}),
+						width: column.Width ? column.Width : "",
+						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						template: new sap.m.Input({
+							value:{
+								path:column.Field,
+								type: 'sap.ui.model.type.Float',
+								constraints: { maximum: 1 },
+								formatter: this.formatPercentage.bind(this)
+							}
+						}),
+						filterProperty: column.Field
+					}));
 				} else {
 					oTable.addColumn(new sap.ui.table.Column({
 						headerSpan: column.headerSpan ? column.headerSpan: "",
@@ -83,27 +102,64 @@ sap.ui.define([
 						}),
 						width: column.Width ? column.Width : "",
 						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
-						template: new sap.m.Input().bindProperty("value", column.Field),
+						template: new sap.m.Input({
+							value:{
+								path:column.Field,
+							}
+						}),
 						filterProperty: column.Field
 					}));
 				}
 			} else {
-				oTable.addColumn(new sap.ui.table.Column({
-					headerSpan: column.headerSpan ? column.headerSpan: "",
-					autoResizable: true,
-					flexible: false,
-					width: column.Width ? column.Width : "",
-					label: new sap.m.Text({
-						wrapping: false,
-						text: column.Title
-					}),
-					multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
-					// visible: column.hidden == undefined || !column.hidden,
-					template: new sap.m.Text().bindProperty("text", column.Field).setWrapping(false),
-					filterProperty: column.Field
-				}));
+				//最低价列
+				if("LOWEST_SUPPLIER" == column.UIType){
+					var objTemplate = new sap.m.VBox({
+						items: [
+							new sap.m.Text().bindProperty("text", column.Field).setWrapping(false),
+							new sap.m.ObjectStatus({
+								text:{
+									parts: [
+										{path: column.Field},
+										{path: "lowestPrice"},
+									],
+									formatter: this.formatLowestPrice.bind(this)
+								},
+								state:"Success"
+							})
+						]
+					});
+					oTable.addColumn(new sap.ui.table.Column({
+						headerSpan: column.headerSpan ? column.headerSpan: "",
+						autoResizable: true,
+						flexible: false,
+						width: column.Width ? column.Width : "",
+						label: new sap.m.Text({
+							wrapping: false,
+							text: column.Title
+						}),
+						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						// visible: column.hidden == undefined || !column.hidden,
+						template: objTemplate,
+						filterProperty: column.Field
+					}));
+				}else{
+					oTable.addColumn(new sap.ui.table.Column({
+						headerSpan: column.headerSpan ? column.headerSpan: "",
+						autoResizable: true,
+						flexible: false,
+						width: column.Width ? column.Width : "",
+						label: new sap.m.Text({
+							wrapping: false,
+							text: column.Title
+						}),
+						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						// visible: column.hidden == undefined || !column.hidden,
+						template: new sap.m.Text().bindProperty("text", column.Field).setWrapping(false),
+						filterProperty: column.Field
+					}));
+				}
 			}
-		}
+		},
 
 	});
 });
