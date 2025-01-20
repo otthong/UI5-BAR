@@ -25,5 +25,11 @@
 }
 
 .lowestPriceText {
-    color: green !important;
+    color: green!important;  /* 设置字体颜色为绿色 */
+    font-size: 0.8em;  /* 可选：调整字体大小 */
+}
+.sapUiTinyMarginBegin {
+    margin-left: 4px;
+    color: green;
+    
 }

@@ -59,37 +59,38 @@ sap.ui.define([
 				this.getRouter().navTo("master", {}, true);
 			}
 		},
-		addTableColumns: function(oTable, column){
+		addTableColumns: function (oTable, column) {
+		
+		
 			if (column.Edit == true || column.Edit == "true") {
 				if ("CheckBox" == column.UIType) {
 					oTable.addColumn(new sap.ui.table.Column({
-						headerSpan: column.headerSpan ? column.headerSpan: "",
+						headerSpan: column.headerSpan ? column.headerSpan : "",
 						label: new sap.m.Text({
 							wrapping: false,
 							text: column.Title
 						}),
 						width: column.Width ? column.Width : "",
-						// visible: column.hidden == undefined || !column.hidden,
-						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						multiLabels: column.Group ? [new sap.m.Label({ text: column.Group, textAlign: "Center", width: "100%" }), new sap.m.Label({ text: column.Title })] : null,
 						template: new sap.m.CheckBox().bindProperty("selected", column.Field),
 						filterProperty: column.Field
 					}));
 				} else {
 					oTable.addColumn(new sap.ui.table.Column({
-						headerSpan: column.headerSpan ? column.headerSpan: "",
+						headerSpan: column.headerSpan ? column.headerSpan : "",
 						label: new sap.m.Text({
 							wrapping: false,
 							text: column.Title
 						}),
 						width: column.Width ? column.Width : "",
-						multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
+						multiLabels: column.Group ? [new sap.m.Label({ text: column.Group, textAlign: "Center", width: "100%" }), new sap.m.Label({ text: column.Title })] : null,
 						template: new sap.m.Input().bindProperty("value", column.Field),
 						filterProperty: column.Field
 					}));
 				}
 			} else {
 				oTable.addColumn(new sap.ui.table.Column({
-					headerSpan: column.headerSpan ? column.headerSpan: "",
+					headerSpan: column.headerSpan ? column.headerSpan : "",
 					autoResizable: true,
 					flexible: false,
 					width: column.Width ? column.Width : "",
@@ -97,11 +98,49 @@ sap.ui.define([
 						wrapping: false,
 						text: column.Title
 					}),
-					multiLabels: column.Group ? [new sap.m.Label({text: column.Group,textAlign:"Center",width:"100%"}), new sap.m.Label({text: column.Title})] : null,
-					// visible: column.hidden == undefined || !column.hidden,
-					template: new sap.m.Text().bindProperty("text", column.Field).setWrapping(false),
+					multiLabels: column.Group ? [new sap.m.Label({ text: column.Group, textAlign: "Center", width: "100%" }), new sap.m.Label({ text: column.Title })] : null,
+					template: this.createColumnTemplate(column),
 					filterProperty: column.Field
 				}));
+			}
+		
+			
+		},
+		createColumnTemplate: function (column) {
+			if (column.Field.includes("Amount")) {
+				// 单价列使用特殊的模板
+				return new sap.m.VBox({  // 使用 VBox 垂直排列
+					items: [
+						new sap.m.Text({
+							text: {
+								path: column.Field
+							},
+							wrapping: false
+						}),
+						new sap.m.Text({
+							text: {
+								path: column.Field.replace("Amount", "IsLowest"),
+								formatter: function (isLowest) {
+									return isLowest ? "Rank 1 Lowest" : "";
+								}
+							},
+							wrapping: false,
+							visible: {
+								path: column.Field.replace("Amount", "IsLowest"),
+								formatter: function (isLowest) {
+									return isLowest;
+								}
+							}
+						}).addStyleClass("lowestPriceText")  // 动态添加样式类
+					]
+				});
+			} else {
+				// 其他列使用普通文本模板
+				return new sap.m.Text({
+					text: {
+						path: column.Field
+					}
+				});
 			}
 		}
 
