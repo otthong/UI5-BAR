@@ -59,6 +59,17 @@ sap.ui.define([
 				this.getRouter().navTo("master", {}, true);
 			}
 		},
+		debounce: function(fn, delay) {
+			let timer = null;
+			return function() {
+				const context = this;
+				const args = arguments;
+				clearTimeout(timer);
+				timer = setTimeout(() => {
+					fn.apply(context, args);
+				}, delay);
+			};
+		},
 		addTableColumns: function(oTable, column){
 			if (column.Edit == true || column.Edit == "true") {
 				if ("CheckBox" == column.UIType) {
@@ -74,7 +85,7 @@ sap.ui.define([
 						template: new sap.m.CheckBox().bindProperty("selected", column.Field),
 						filterProperty: column.Field
 					}));
-				} else if("PERCENTAGE" == column.UIType){
+				} else if("PercentInput" == column.UIType){
 					oTable.addColumn(new sap.ui.table.Column({
 						headerSpan: column.headerSpan ? column.headerSpan: "",
 						label: new sap.m.Text({
@@ -87,9 +98,10 @@ sap.ui.define([
 							value:{
 								path:column.Field,
 								type: 'sap.ui.model.type.Float',
-								constraints: { maximum: 1 },
+								constraints: {minimum: 0, maximum: 1},
 								formatter: this.formatPercentage.bind(this)
-							}
+							},
+							submit: this.onPercentInputChange
 						}),
 						filterProperty: column.Field
 					}));
