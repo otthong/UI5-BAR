@@ -43,7 +43,12 @@ sap.ui.define([
 		getResourceBundle : function () {
 			return this.getOwnerComponent().getModel("i18n").getResourceBundle();
 		},
-
+		getResourceBundleText: function (text, aValues) {
+			if (this.bundle === undefined || this.bundle === null) {
+			  this.bundle = this.getResourceBundle();
+			}
+			return this.bundle.getText(text, JSON.stringify(aValues, null, 2));
+		},
 		/**
 		 * Event handler for navigating back.
 		 * It there is a history entry we go one step back in the browser history

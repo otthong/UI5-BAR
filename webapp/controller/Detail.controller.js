@@ -148,6 +148,7 @@ sap.ui.define([
             return NumberFormat.getPercentInstance().format(value);
         },
         onSavePress: function(){
+            var that = this;
             // 获取 ODataModel
             var oRfpModel = this.getRfpModel();        
             if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
@@ -194,20 +195,20 @@ sap.ui.define([
                     oRfpModel.update(sEntityPath, row, {
                         success: function () {
                             console.log("更新成功：", sEntityPath);
-                            MessageToast.show("更新成功");
+                            MessageToast.show(that.getResourceBundleText("updateSuccessful"));
                         },
                         error: function (oError) {
                             console.error("更新失败：", oError, "路径：", sEntityPath);
-                            MessageToast.show("更新失败");
+                            MessageToast.show(that.getResourceBundleText("updateFailed"));
                         }
                     });
                 })
             }else{
-                MessageToast.show("您没有修改任何数据!"); 
+                MessageToast.show(that.getResourceBundleText('noDataChangedError')); 
             }
         },
         onSendPress: function () {
-            MessageToast.show("TODO:onSendPress，需要确定ariba接口");
+            MessageToast.show("TODO:onSendPress");
         }
     });
 });
