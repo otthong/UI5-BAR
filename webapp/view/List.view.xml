@@ -16,7 +16,7 @@
                     singleContainerFullSize="false">
 					<f:toolbar>
 						<m:Toolbar id="TB1">
-							<m:Title id="Title1" text=""/>
+							<m:Title text="{i18n>appTitle}"/>
 							<m:ToolbarSpacer />
 							<m:Button icon="sap-icon://search" text="{i18n>search}" press="onSearchPress"/>
 						</m:Toolbar>

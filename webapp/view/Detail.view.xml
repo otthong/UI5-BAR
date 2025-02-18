@@ -49,9 +49,10 @@
                     ariaLabelledBy="title"
                     enableColumnFreeze="true"
                     showColumnVisibilityMenu="true"
-                    selectionMode="Single"
+                    selectionMode="None"
                     alternateRowColors="true"
-                    rows="{rfpDetail>/rows}">
+                    rows="{rfpDetail>/rows}"
+                    fixedColumnCount="4">
                     <!-- 动态列会在控制器中生成 -->
                 </t:Table>
             </VBox>

@@ -123,78 +123,27 @@ sap.ui.define([
                     // 获取表格控件并清空现有列
                     var oTable = that.getView().byId("materialTable");
                     oTable.destroyColumns();
-        
-                    // 添加固定列
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>Itemid}" }),
-                        template: new Text({ text: "{Itemid}" }),
-                        width: "2em"
-                    }));
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>materialCode}" }),
-                        template: new Text({ text: "{Materialcode}" }),
-                        width: "8em"
-                    }));
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>Itemdescription}" }),
-                        template: new Text({ text: "{Itemdescription}" }),
-                        width: "15em"
-                    }));
-                    oTable.addColumn(new Column({
-                        label: new Label({ text: "{i18n>Quantity}" }),
-                        template: new Text({ text: "{Quantity}" }),
-                        width: "4em"
-                    }));
+                    if (suppliners) {
+                        this.addTableColumns(oTable, { "Field": "Itemid", "Title": "{i18n>Itemid}", Width: "3em" });
+                        this.addTableColumns(oTable, { "Field": "Materialcode", "Title": "{i18n>materialCode}", Width: "8em" });
+                        this.addTableColumns(oTable, { "Field": "Itemdescription", "Title": "{i18n>Itemdescription}", Width: "15em" });
+                        this.addTableColumns(oTable, { "Field": "Quantity", "Title": "{i18n>Quantity}", Width: "6em" });
+                        suppliners.forEach(suppliner => {
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}", "UIType":"LOWEST_SUPPLIER", "Group": suppliner, "headerSpan": 5, Width: "7em"});//ObjectListItem
+                            this.addTableColumns(oTable, { "Field": suppliner + "-TotalAmount", "Title": "{i18n>TotalAmount}", "Group": suppliner, Width: "5em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Currency", "Title": "{i18n>Currency}", "Group": suppliner, Width: "3em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Specification", "Title": "{i18n>Specification}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "15em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Award", "Title": "{i18n>Award}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "8em" });
+                        })
 
-                    // 动态添加供应商相关的列
-                    suppliners.forEach(suppliner => {
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Amount}" }),
-                            template: that.createPriceTemplate(suppliner),
-                            width: "5em"
-                        }));
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Currency}" }),
-                            template: new Text({ text: `{${suppliner}Currency}` }),
-                            width: "3em"
-                        }));
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Specification}" }),
-                            template: new Input({
-                                value: `{${suppliner}Specification}`,
-                                editable: true,
-                                liveChange: function (oEvent) {
-                                    var oSource = oEvent.getSource();
-                                    var sPath = oSource.getBindingContext().getPath();
-                                    var sValue = oEvent.getParameter("value");
-                                    var oModel = oSource.getModel();
-                                    oModel.setProperty(sPath + `/${suppliner}Specification`, sValue);
-                                }
-                            }),
-                            width: "15em"
-                        }));
-                        oTable.addColumn(new Column({
-                            label: new Label({ text: suppliner + " {i18n>Award}" }),
-                            template: new Input({
-                                value: `{${suppliner}Award}`,
-                                editable: true,
-                                liveChange: function (oEvent) {
-                                    var oSource = oEvent.getSource();
-                                    var sPath = oSource.getBindingContext().getPath();
-                                    var sValue = oEvent.getParameter("value");
-                                    var oModel = oSource.getModel();
-                                    oModel.setProperty(sPath + `/${suppliner}Award`, sValue);
-                                }
-                            }),
-                            width: "8em"
-                        }));
-                    });
-        
-                    // 将数据绑定到表格
-                    var oJsonModel = new sap.ui.model.json.JSONModel({ rows: rfpItems });
-                    oTable.setModel(oJsonModel);
-                    oTable.bindRows("/rows");
-                });
+                        //绑定数据
+                        var oModel = new sap.ui.model.json.JSONModel({
+                            rows: rfpItems
+                        });
+                        oTable.setModel(oModel);
+                        oTable.bindRows("/rows");
+                    }
+                })
             });
         },
         createPriceTemplate: function (supplier) {
@@ -212,9 +161,8 @@ sap.ui.define([
                 ]
             });
         },
-        onSavePress: function () {
-            console.log("onSavePress 方法被触发");
-        
+        onSavePress: function(){
+            var that = this;
             // 获取 ODataModel
             var oRfpModel = this.getRfpModel();
             console.log("获取到的模型实例：", oRfpModel);
@@ -251,15 +199,17 @@ sap.ui.define([
                     oRfpModel.update(sEntityPath, oUpdateData, {
                         success: function () {
                             console.log("更新成功：", sEntityPath);
+                            MessageToast.show(that.getResourceBundleText("updateSuccessful"));
                         },
                         error: function (oError) {
                             console.error("更新失败：", oError, "路径：", sEntityPath);
+                            MessageToast.show(that.getResourceBundleText("updateFailed"));
                         }
                     });
-                } else {
-                    console.error("缺少必要的键值 Internalid 或 Itemid，无法更新：", oRow);
-                }
-            });
+                })
+            }else{
+                MessageToast.show(that.getResourceBundleText('noDataChangedError')); 
+            }
         },
         onSendPress: function () {
             MessageToast.show("TODO:onSendPress");

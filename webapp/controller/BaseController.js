@@ -43,7 +43,12 @@ sap.ui.define([
 		getResourceBundle : function () {
 			return this.getOwnerComponent().getModel("i18n").getResourceBundle();
 		},
-
+		getResourceBundleText: function (text, aValues) {
+			if (this.bundle === undefined || this.bundle === null) {
+			  this.bundle = this.getResourceBundle();
+			}
+			return this.bundle.getText(text, JSON.stringify(aValues, null, 2));
+		},
 		/**
 		 * Event handler for navigating back.
 		 * It there is a history entry we go one step back in the browser history
@@ -59,9 +64,24 @@ sap.ui.define([
 				this.getRouter().navTo("master", {}, true);
 			}
 		},
+<<<<<<< HEAD
 		addTableColumns: function (oTable, column) {
 		
 		
+=======
+		debounce: function(fn, delay) {
+			let timer = null;
+			return function() {
+				const context = this;
+				const args = arguments;
+				clearTimeout(timer);
+				timer = setTimeout(() => {
+					fn.apply(context, args);
+				}, delay);
+			};
+		},
+		addTableColumns: function(oTable, column){
+>>>>>>> 7ba53efccbf51a2549e8ee70045a2ea25097ea44
 			if (column.Edit == true || column.Edit == "true") {
 				if ("CheckBox" == column.UIType) {
 					oTable.addColumn(new sap.ui.table.Column({
@@ -75,7 +95,7 @@ sap.ui.define([
 						template: new sap.m.CheckBox().bindProperty("selected", column.Field),
 						filterProperty: column.Field
 					}));
-				} else if("PERCENTAGE" == column.UIType){
+				} else if("PercentInput" == column.UIType){
 					oTable.addColumn(new sap.ui.table.Column({
 						headerSpan: column.headerSpan ? column.headerSpan: "",
 						label: new sap.m.Text({
@@ -88,9 +108,10 @@ sap.ui.define([
 							value:{
 								path:column.Field,
 								type: 'sap.ui.model.type.Float',
-								constraints: { maximum: 1 },
+								constraints: {minimum: 0, maximum: 1},
 								formatter: this.formatPercentage.bind(this)
-							}
+							},
+							submit: this.onPercentInputChange
 						}),
 						filterProperty: column.Field
 					}));
