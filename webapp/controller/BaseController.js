@@ -172,6 +172,45 @@ sap.ui.define([
 				}
 			}
 		},
-
+		getResourceBundleText: function (text, aValues) {
+			if (this.bundle === undefined || this.bundle === null) {
+			  this.bundle = this.getResourceBundle();
+			}
+			return this.bundle.getText(text, JSON.stringify(aValues, null, 2));
+		},
+		 downloadFileFromOData:function(odataUrl, fileName) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", odataUrl, true);
+			xhr.responseType = "blob";
+			var that = this;
+			xhr.onload = function () {
+				if (xhr.status === 200) {
+					var contentType = xhr.getResponseHeader("Content-Type");
+					var contentDisposition = xhr.getResponseHeader("Content-Disposition");
+					var fileName = contentDisposition ? contentDisposition.split("filename=")[1] : "file.xlsx";
+		
+					var blob = new Blob([xhr.response], { type: contentType });
+					that.downloadFile(blob, fileName);
+				} else {
+					console.error("Failed to download file. Status:", xhr.status);
+				}
+			};
+		
+			xhr.onerror = function () {
+				console.error("Error downloading file.");
+			};
+		
+			xhr.send();
+		},
+		downloadFile: function(blob, fileName) {
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement("a");
+			a.href = url;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		}
 	});
 });

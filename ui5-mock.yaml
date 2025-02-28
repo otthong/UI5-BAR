@@ -9,7 +9,7 @@ server:
     - name: fiori-tools-proxy
       afterMiddleware: compression
       configuration:
-        ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ignoreCertError: false
         ui5:
           path:
             - /resources
@@ -34,10 +34,6 @@ server:
       configuration:
         mountPath: /
         services:
-          - urlPath: /sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV
-            metadataPath: ./webapp/localService/metadata.xml
-            mockdataPath: ./webapp/localService/data
-            generateMockData: true
           - urlPath: /sap/opu/odata/sap/ZUI5SRVRFP_SRV
             metadataPath: ./webapp/localService/rfpmetadata.xml
             mockdataPath: ./webapp/localService/rfpdata

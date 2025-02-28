@@ -148,6 +148,7 @@ sap.ui.define([
             return NumberFormat.getPercentInstance().format(value);
         },
         onSavePress: function(){
+            var that = this;
             // 获取 ODataModel
             var oRfpModel = this.getRfpModel();        
             if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
@@ -187,27 +188,50 @@ sap.ui.define([
             });
 
             if(zrfpItemPriceChanged && zrfpItemPriceChanged.length>0){
+                //1.设置useBatch为true
+                oRfpModel.setUseBatch(true);
                 zrfpItemPriceChanged.forEach(row=>{
                     // 构造更新路径
                     var sEntityPath = "/zrfp_item_priceSet(Internalid='" + row.Internalid + "',Itemid='" + row.Itemid + "',Supplier='"+row.Supplier+"')";
                     // 执行更新操作
                     oRfpModel.update(sEntityPath, row, {
+                        "groupId": row.Internalid+row.Itemid+row.Supplier,
+                        "changeSetId": row.Internalid+row.Itemid+row.Supplier,
                         success: function () {
                             console.log("更新成功：", sEntityPath);
-                            MessageToast.show("更新成功");
+                            MessageToast.show(that.getResourceBundleText("updateSuccessful"));
                         },
                         error: function (oError) {
                             console.error("更新失败：", oError, "路径：", sEntityPath);
-                            MessageToast.show("更新失败");
+                            MessageToast.show(that.getResourceBundleText("updateFailed"));
                         }
                     });
-                })
+                });
+                oRfpModel.submitChanges();
             }else{
                 MessageToast.show("您没有修改任何数据!"); 
             }
         },
         onSendPress: function () {
             MessageToast.show("TODO:onSendPress，需要确定ariba接口");
-        }
+        },
+        onExportToExcel: function () {
+            var that = this;
+             // 获取 ODataModel
+             var oRfpModel = this.getRfpModel();        
+             if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
+                 console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
+                 return;
+             }
+
+            var Internalid = this.getView().getModel("rfpDetail").getData().Internalid;
+            if( Internalid ){
+                var sPath = "/sap/opu/odata/SAP/ZUI5SRVRFP_SRV/fileSet('"+Internalid+"')/$value";
+                //this.downloadFileFromOData(sPath, "file.xlsx");
+                window.open(sPath);
+            }else{
+                MessageToast.show(this.getResourceBundleText("downloadFailedNoInternalid"));
+            }
+        },
     });
 });

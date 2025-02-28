@@ -1,156 +1,142 @@
 {
-    "_version": "1.60.0",
-    "sap.app": {
-        "id": "ods4",
-        "type": "application",
-        "i18n": "i18n/i18n.properties",
-        "applicationVersion": {
-            "version": "0.0.1"
-        },
-        "title": "{{appTitle}}",
-        "description": "{{appDescription}}",
-        "resources": "resources.json",
-        "sourceTemplate": {
-            "id": "@sap/generator-fiori:basic",
-            "version": "1.15.5",
-            "toolsId": "370557e2-a448-4771-9c5d-72b9ee155824"
-        },
-        "dataSources": {
-            "mainService": {
-                "uri": "/sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV/",
-                "type": "OData",
-                "settings": {
-                    "annotations": [],
-                    "localUri": "localService/metadata.xml",
-                    "odataVersion": "2.0"
-                }
-            },
-            "rfp":{
-                "uri": "/sap/opu/odata/sap/ZUI5SRVRFP_SRV/",
-                "type": "OData",
-                "settings": {
-                    "annotations": [],
-                    "localUri": "localService/rfpmetadata.xml",
-                    "odataVersion": "2.0"
-                }
-            }
-        }
+  "_version": "1.60.0",
+  "sap.app": {
+    "id": "ods4",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
     },
-    "sap.ui": {
-        "technology": "UI5",
-        "icons": {
-            "icon": "",
-            "favIcon": "",
-            "phone": "",
-            "phone@2": "",
-            "tablet": "",
-            "tablet@2": ""
-        },
-        "deviceTypes": {
-            "desktop": true,
-            "tablet": true,
-            "phone": true
-        }
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.15.5",
+      "toolsId": "370557e2-a448-4771-9c5d-72b9ee155824"
     },
-    "sap.ui5": {
-        "flexEnabled": true,
-        "dependencies": {
-            "minUI5Version": "1.120.0",
-            "libs": {
-                "sap.m": {},
-                "sap.ui.core": {}
-            }
+    "dataSources": {
+      "rfp": {
+        "uri": "/sap/opu/odata/sap/ZUI5SRVRFP_SRV/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/rfpmetadata.xml",
+          "odataVersion": "2.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "ods4.i18n.i18n"
+        }
+      },
+      "rfp": {
+        "dataSource": "rfp",
+        "preload": true,
+        "settings": {}
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "ods4.view",
+        "async": true,
+        "viewPath": "ods4.view"
+      },
+      "routes": [
+        {
+          "name": "RouteMaster",
+          "pattern": ":?query:",
+          "target": [
+            "list"
+          ]
         },
-        "contentDensities": {
-            "compact": true,
-            "cozy": true
-        },
-        "models": {
-            "i18n": {
-                "type": "sap.ui.model.resource.ResourceModel",
-                "settings": {
-                    "bundleName": "ods4.i18n.i18n"
-                }
-            },
-            "": {
-                "dataSource": "mainService",
-                "preload": true,
-                "settings": {}
-            },
-            "rfp": {
-                "dataSource": "rfp",
-                "preload": true,
-                "settings": {}
-            }
-        },
-        "resources": {
-            "css": [
-                {
-                    "uri": "css/style.css"
-                }
-            ]
-        },
-        "routing": {
-            "config": {
-                "routerClass": "sap.m.routing.Router",
-                "controlAggregation": "pages",
-                "controlId": "app",
-                "transition": "slide",
-                "type": "View",
-                "viewType": "XML",
-                "path": "ods4.view",
-                "async": true,
-                "viewPath": "ods4.view"
-            },
-            "routes": [
-                {
-                    "name": "RouteMaster",
-                    "pattern": ":?query:",
-                    "target": [
-                        "list"
-                    ]
-                },
-                {
-                    "name": "detail",
-                    "pattern": "detail/{Internalid}",
-                    "target": "detail"
-                }
-            ],
-            "targets": {
-                "TargetMaster": {
-                    "id": "Master",
-                    "name": "Master",
-                    "viewName": "Master",
-                    "viewLevel": 1
-                },
-                "list": {
-                    "id": "list",
-                    "name": "list",
-                    "viewName": "list",
-                    "viewLevel": 1
-                },
-                "detail": {
-                    "id": "detail",
-                    "name": "detail",
-                    "viewName": "detail",
-                    "viewLevel": 1
-                }
-            }
-        },
-        "rootView": {
-            "viewName": "ods4.view.App",
-            "type": "XML",
-            "id": "App"
+        {
+          "name": "detail",
+          "pattern": "detail/{Internalid}",
+          "target": "detail"
+        }
+      ],
+      "targets": {
+        "TargetMaster": {
+          "id": "Master",
+          "name": "Master",
+          "viewName": "Master",
+          "viewLevel": 1
         },
         "list": {
-            "viewName": "ods4.view.List",
-            "type": "XML",
-            "id": "list"
+          "id": "list",
+          "name": "list",
+          "viewName": "list",
+          "viewLevel": 1
         },
         "detail": {
-            "viewName": "ods4.view.Detail",
-            "type": "XML",
-            "id": "detail"
+          "id": "detail",
+          "name": "detail",
+          "viewName": "detail",
+          "viewLevel": 1
         }
+      }
+    },
+    "rootView": {
+      "viewName": "ods4.view.App",
+      "type": "XML",
+      "id": "App"
+    },
+    "list": {
+      "viewName": "ods4.view.List",
+      "type": "XML",
+      "id": "list"
+    },
+    "detail": {
+      "viewName": "ods4.view.Detail",
+      "type": "XML",
+      "id": "detail"
     }
+  }
 }

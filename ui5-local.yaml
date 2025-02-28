@@ -28,19 +28,16 @@ server:
     - name: fiori-tools-proxy
       afterMiddleware: compression
       configuration:
-        ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ignoreCertError: false
         backend:
           - path: /sap
-            url: http://training.csdgc.c.ap-cn-1.cloud.sap:50000
+            url: http://sandbox.sapappdemo.com.cn:44359
+            client: 300
     - name: sap-fe-mockserver
       beforeMiddleware: csp
       configuration:
         mountPath: /
         services:
-          - urlPath: /sap/opu/odata/sap/API_PURCHASEORDER_PROCESS_SRV
-            metadataPath: ./webapp/localService/metadata.xml
-            mockdataPath: ./webapp/localService/data
-            generateMockData: true
           - urlPath: /sap/opu/odata/sap/ZUI5SRVRFP_SRV
             metadataPath: ./webapp/localService/rfpmetadata.xml
             mockdataPath: ./webapp/localService/data

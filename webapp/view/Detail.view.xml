@@ -53,6 +53,15 @@
                     alternateRowColors="true"
                     rows="{rfpDetail>/rows}"
                     fixedColumnCount="4">
+                    <t:extension>
+                        <OverflowToolbar>
+                            <ToolbarSpacer/>
+                            <Button
+                                icon="sap-icon://excel-attachment"
+                                text="Export to Excel"
+                                press="onExportToExcel"/>
+                        </OverflowToolbar>
+                    </t:extension>
                     <!-- 动态列会在控制器中生成 -->
                 </t:Table>
             </VBox>
