@@ -4,7 +4,7 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/ui/core/format/NumberFormat"
-], function (BaseController, MessageToast, Filter, FilterOperator,NumberFormat) {
+], function (BaseController, MessageToast, Filter, FilterOperator, NumberFormat) {
     "use strict";
     var suppliners;
     return BaseController.extend("ods4.controller.Detail", {
@@ -69,10 +69,10 @@ sap.ui.define([
         },
         onInit: function () {
             var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
-            oRouter.getRoute("detail").attachPatternMatched(this._onDetailMatched, this);        
+            oRouter.getRoute("detail").attachPatternMatched(this._onDetailMatched, this);
             // 获取 OData 模型
             var oModel = this.getOwnerComponent().getModel("rfp");
-        
+
             // 检查模型是否为 ODataModel
             if (oModel instanceof sap.ui.model.odata.v2.ODataModel) {
                 // oModel.setDefaultUpdateMethod("PUT"); // 或 "MERGE"，根据后端支持选择
@@ -96,7 +96,7 @@ sap.ui.define([
                         let record = rfpItems.find(item => item.Internalid === row.Internalid && item.Itemid === row.Itemid);
                         record[row.Supplier + "-Supplier"] = row.Supplier;
                         record[row.Supplier + "-Amount"] = row.Amount;
-                        record[row.Supplier + "-TotalAmount"] = row.Amount*record.Quantity;
+                        record[row.Supplier + "-TotalAmount"] = row.Amount * record.Quantity;
                         record[row.Supplier + "-Currency"] = row.Currency;
                         record[row.Supplier + "-Specification"] = row.Specification;
                         record[row.Supplier + "-Award"] = row.Award;
@@ -118,7 +118,7 @@ sap.ui.define([
                         this.addTableColumns(oTable, { "Field": "Itemdescription", "Title": "{i18n>Itemdescription}", Width: "15em" });
                         this.addTableColumns(oTable, { "Field": "Quantity", "Title": "{i18n>Quantity}", Width: "6em" });
                         suppliners.forEach(suppliner => {
-                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}", "UIType":"LOWEST_SUPPLIER", "Group": suppliner, "headerSpan": 5, Width: "7em"});//ObjectListItem
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}", "UIType": "LOWEST_SUPPLIER", "Group": suppliner, "headerSpan": 5, Width: "7em" });//ObjectListItem
                             this.addTableColumns(oTable, { "Field": suppliner + "-TotalAmount", "Title": "{i18n>TotalAmount}", "Group": suppliner, Width: "5em" });
                             this.addTableColumns(oTable, { "Field": suppliner + "-Currency", "Title": "{i18n>Currency}", "Group": suppliner, Width: "3em" });
                             this.addTableColumns(oTable, { "Field": suppliner + "-Specification", "Title": "{i18n>Specification}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "15em" });
@@ -135,9 +135,9 @@ sap.ui.define([
                 })
             });
         },
-        formatLowestPrice: function(price,lowestPrice){
-            if(price === lowestPrice)
-			    return "Rank 1 Lowest";
+        formatLowestPrice: function (price, lowestPrice) {
+            if (price === lowestPrice)
+                return "Rank 1 Lowest";
             else
                 return "";
         },
@@ -147,15 +147,15 @@ sap.ui.define([
             }
             return NumberFormat.getPercentInstance().format(value);
         },
-        onSavePress: function(){
+        onSavePress: function () {
             var that = this;
             // 获取 ODataModel
-            var oRfpModel = this.getRfpModel();        
+            var oRfpModel = this.getRfpModel();
             if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
                 console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
                 return;
             }
-        
+
             // 获取表格数据
             var oTable = this.getView().byId("materialTable");
             var oJsonModel = oTable.getModel();
@@ -163,22 +163,22 @@ sap.ui.define([
             //遍历所有数据获取有更新的记录
             var zrfpItemPriceChanged = []
             aData.forEach(function (oRow) {
-                var Internalid= oRow["Internalid"];
-                var Itemid= oRow["Itemid"];
-                suppliners.forEach(s=>{
-                    var supplier = oRow[s+"-Supplier"];
-                    if(supplier){
-                        var Award = oRow[s+"-Award"];
-                        var Award_Old = oRow[s+"-Award_Old"];
-                        var Specification = oRow[s+"-Specification"];
-                        var Specification_Old = oRow[s+"-Specification_Old"];
-                        if(Award != Award_Old || Specification != Specification_Old){
+                var Internalid = oRow["Internalid"];
+                var Itemid = oRow["Itemid"];
+                suppliners.forEach(s => {
+                    var supplier = oRow[s + "-Supplier"];
+                    if (supplier) {
+                        var Award = oRow[s + "-Award"];
+                        var Award_Old = oRow[s + "-Award_Old"];
+                        var Specification = oRow[s + "-Specification"];
+                        var Specification_Old = oRow[s + "-Specification_Old"];
+                        if (Award != Award_Old || Specification != Specification_Old) {
                             zrfpItemPriceChanged.push({
-                                "Internalid":Internalid,
-                                "Itemid":Itemid,
-                                "Supplier":supplier,
-                                "Specification":Specification,
-                                "Award":Award,
+                                "Internalid": Internalid,
+                                "Itemid": Itemid,
+                                "Supplier": supplier,
+                                "Specification": Specification,
+                                "Award": Award,
                             })
 
                         }
@@ -187,16 +187,16 @@ sap.ui.define([
                 //TODO: 检查同一个物料配额的和必须等于0或100%
             });
 
-            if(zrfpItemPriceChanged && zrfpItemPriceChanged.length>0){
+            if (zrfpItemPriceChanged && zrfpItemPriceChanged.length > 0) {
                 //1.设置useBatch为true
                 oRfpModel.setUseBatch(true);
-                zrfpItemPriceChanged.forEach(row=>{
+                zrfpItemPriceChanged.forEach(row => {
                     // 构造更新路径
-                    var sEntityPath = "/zrfp_item_priceSet(Internalid='" + row.Internalid + "',Itemid='" + row.Itemid + "',Supplier='"+row.Supplier+"')";
+                    var sEntityPath = "/zrfp_item_priceSet(Internalid='" + row.Internalid + "',Itemid='" + row.Itemid + "',Supplier='" + row.Supplier + "')";
                     // 执行更新操作
                     oRfpModel.update(sEntityPath, row, {
-                        "groupId": row.Internalid+row.Itemid+row.Supplier,
-                        "changeSetId": row.Internalid+row.Itemid+row.Supplier,
+                        "groupId": row.Internalid + row.Itemid + row.Supplier,
+                        "changeSetId": row.Internalid + row.Itemid + row.Supplier,
                         success: function () {
                             console.log("更新成功：", sEntityPath);
                             MessageToast.show(that.getResourceBundleText("updateSuccessful"));
@@ -208,28 +208,76 @@ sap.ui.define([
                     });
                 });
                 oRfpModel.submitChanges();
-            }else{
-                MessageToast.show("您没有修改任何数据!"); 
+            } else {
+                MessageToast.show("您没有修改任何数据!");
             }
         },
+
+
+
+
         onSendPress: function () {
-            MessageToast.show("TODO:onSendPress，需要确定ariba接口");
+            // 从路由参数获取Internalid（即DocID）
+            const sDocId = this._getDocIdFromRoute();
+            if (!sDocId) {
+                MessageToast.show(this.getResourceBundleText("invalidDocId"));
+                return;
+            }
+
+            // 准备OData调用
+            const oModel = this.getRfpModel();
+            const sPath = `/zrfpSet(Internalid='${sDocId}')`;
+            const oView = this.getView();
+
+        
+            oView.setBusy(true);
+
+            //  调用OData更新方法
+            oModel.update(sPath, {
+                Action: "SUBMIT_TO_ARIBA" // 固定动作类型
+            }, {
+                method: "PUT",
+                success: () => {
+                    MessageToast.show(this.getResourceBundleText("submitSuccess"));
+                    // 5. 刷新前端数据
+                    oView.getModel("rfpDetail").updateBindings();
+                },
+                error: (oError) => {
+                    console.error("提交失败:", oError);
+                    MessageToast.show(this.getResourceBundleText("submitError"));
+                },
+                complete: () => {
+                    oView.setBusy(false);
+                }
+            });
         },
+
+        // 辅助方法：从路由参数获取Internalid
+        _getDocIdFromRoute: function () {
+            const oRouter = this.getOwnerComponent().getRouter();
+            const oRouteInfo = oRouter.getCurrentRouteInfo();
+
+            // 安全获取参数
+            return oRouteInfo?.arguments?.Internalid;
+
+            //OData调用方法
+        },
+
         onExportToExcel: function () {
             var that = this;
-             // 获取 ODataModel
-             var oRfpModel = this.getRfpModel();        
-             if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
-                 console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
-                 return;
-             }
+            // 获取 ODataModel
+            var oRfpModel = this.getRfpModel();
+            if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
+                console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
+                return;
+            }
 
             var Internalid = this.getView().getModel("rfpDetail").getData().Internalid;
-            if( Internalid ){
-                var sPath = "/sap/opu/odata/SAP/ZUI5SRVRFP_SRV/fileSet('"+Internalid+"')/$value";
+            if (Internalid) {
+                var sPath = "/sap/opu/odata/SAP/ZUI5SRVRFP_SRV/fileSet('" + Internalid + "')/$value";
                 //this.downloadFileFromOData(sPath, "file.xlsx");
                 window.open(sPath);
-            }else{
+            } else {
                 MessageToast.show(this.getResourceBundleText("downloadFailedNoInternalid"));
             }
         },
