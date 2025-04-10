@@ -95,14 +95,14 @@ sap.ui.define([
                         }
                         let record = rfpItems.find(item => item.Internalid === row.Internalid && item.Itemid === row.Itemid);
                         record[row.Supplier + "-Supplier"] = row.Supplier;
-                        record[row.Supplier + "-Amount"] = row.Amount;
-                        record[row.Supplier + "-TotalAmount"] = row.Totalprice;
+                        record[row.Supplier + "-Amount"] = Number(row.Amount).toFixed(2); 
+                        record[row.Supplier + "-TotalAmount"] = Number(row.Totalprice).toFixed(2); 
                         record[row.Supplier + "-Currency"] = row.Currency;
                         record[row.Supplier + "-Specification"] = row.Specification;
                         record[row.Supplier + "-Award"] = row.Award;
                         record[row.Supplier + "-Specification_Old"] = row.Specification;
                         record[row.Supplier + "-Award_Old"] = row.Award;
-
+ 
                         if (!record.lowestPrice || row.Amount < record.lowestPrice) {
                             record.lowestPrice = row.Amount;
                             record.lowestPriceSupplier = row.Supplier;
@@ -117,9 +117,10 @@ sap.ui.define([
                         this.addTableColumns(oTable, { "Field": "Materialcode", "Title": "{i18n>materialCode}", Width: "8em" });
                         this.addTableColumns(oTable, { "Field": "Itemdescription", "Title": "{i18n>Itemdescription}", Width: "15em" });
                         this.addTableColumns(oTable, { "Field": "Quantity", "Title": "{i18n>Quantity}", Width: "6em" });
+                        this.addTableColumns(oTable, { "Field": "Unit", "Title": "{i18n>Unit}", Width: "6em" });
                         suppliners.forEach(suppliner => {
-                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}",  "UIType":"LOWEST_SUPPLIER", "Group": suppliner, "headerSpan": 5, Width: "7em"});//ObjectListItem
-                            this.addTableColumns(oTable, { "Field": suppliner + "-TotalAmount", "Title": "{i18n>TotalAmount}", "Group": suppliner, Width: "5em" });
+                            this.addTableColumns(oTable, { "Field": suppliner + "-Amount", "Title": "{i18n>Amount}",  "UIType":"LOWEST_SUPPLIER", "Group": suppliner, "headerSpan": 5, Width: "7em",  "bindingTemplate": "{path:'" + suppliner + "-Amount', formatter: '.formatAmount'}" });//ObjectListItem
+                            this.addTableColumns(oTable, { "Field": suppliner + "-TotalAmount", "Title": "{i18n>TotalAmount}", "Group": suppliner, Width: "5em" , "bindingTemplate": "{path:'" + suppliner + "-TotalAmount', formatter: '.formatAmount'}"});
                             this.addTableColumns(oTable, { "Field": suppliner + "-Currency", "Title": "{i18n>Currency}", "Group": suppliner, Width: "3em" });
                             this.addTableColumns(oTable, { "Field": suppliner + "-Specification", "Title": "{i18n>Specification}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "15em" });
                             this.addTableColumns(oTable, { "Field": suppliner + "-Award", "Title": "{i18n>Award}", "UIType": "Text", "Edit": 'true', "Group": suppliner, Width: "8em" });
@@ -147,6 +148,17 @@ sap.ui.define([
             }
             return NumberFormat.getPercentInstance().format(value);
         },
+        // 科学计数法转换为小数格式
+formatAmount: function(value) {
+    if (!value) return "";
+    // 设置小数位数为2，禁用科学计数法
+    var oNumberFormat = NumberFormat.getFloatInstance({
+        maxFractionDigits: 2,
+        minFractionDigits: 2,
+        groupingEnabled: true  // 启用千分位分隔符（如1,000.00）
+    });
+    return oNumberFormat.format(value);
+},
         onSavePress: function(){
             var that = this;
             // 获取 ODataModel

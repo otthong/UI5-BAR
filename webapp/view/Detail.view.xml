@@ -37,7 +37,7 @@
                     <layout:VerticalLayout>
                         <ObjectAttribute title="{i18n>eventTypeName}" text="{rfpDetail>/Eventtypename}" />
                         <ObjectStatus title="{i18n>Owner}" text="{rfpDetail>/Owner}" state="Success" />
-                        <ObjectAttribute title="{i18n>Description}" text="{rfpDetail>/Description}" />
+                        <ObjectAttribute title="{i18n>Title}" text="{rfpDetail>/Title}" />
                     </layout:VerticalLayout>
                 </layout:HorizontalLayout>
             </f:DynamicPageHeader>
