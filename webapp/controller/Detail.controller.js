@@ -159,71 +159,169 @@ formatAmount: function(value) {
     });
     return oNumberFormat.format(value);
 },
-        onSavePress: function(){
-            var that = this;
-            // 获取 ODataModel
-            var oRfpModel = this.getRfpModel();        
-            if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
-                console.error("当前模型不是 ODataModel v2，无法调用 update 方法");
+onSavePress: function() {
+    var that = this;
+    var oRfpModel = this.getRfpModel();
+    if (!(oRfpModel instanceof sap.ui.model.odata.v2.ODataModel)) {
+        console.error("Invalid OData model");
+        return;
+    }
+
+    var oTable = this.getView().byId("materialTable");
+    var oJsonModel = oTable.getModel();
+    var aData = oJsonModel.getData().rows;
+    var zrfpItemPriceChanged = [];
+    var errorMessages = [];
+    var itemAwards = {};
+
+    // 第一次循环：验证数据有效性（增强字段名兼容性）
+    aData.forEach(function(oRow) {
+        // 安全获取字段值（兼容不同命名规范）
+        var itemid = oRow.Itemid || oRow.itemid || oRow.ItemId || "Unknown-ItemID";
+        var itemDesc = oRow.Itemdescription || oRow.itemdescription || oRow.ItemDescription || "Unnamed Material";
+        
+        // 初始化物料统计
+        itemAwards[itemid] = { sum: 0, name: itemDesc };
+
+        suppliners.forEach(s => {
+            var awardField = s + "-Award";
+            var awardValue = oRow[awardField];
+
+            // 空值处理（包括空字符串）
+            if (awardValue === null || awardValue === undefined || awardValue === "") {
+                errorMessages.push(
+                    that.getResourceBundleText("awardNullError", [
+                        s, 
+                        String(itemid),
+                        String(itemDesc)
+                    ])
+                );
                 return;
             }
-        
-            // 获取表格数据
-            var oTable = this.getView().byId("materialTable");
-            var oJsonModel = oTable.getModel();
-            var aData = oJsonModel.getData().rows;
-            //遍历所有数据获取有更新的记录
-            var zrfpItemPriceChanged = []
-            aData.forEach(function (oRow) {
-                var Internalid= oRow["Internalid"];
-                var Itemid= oRow["Itemid"];
-                suppliners.forEach(s=>{
-                    var supplier = oRow[s+"-Supplier"];
-                    if(supplier){
-                        var Award = oRow[s+"-Award"];
-                        var Award_Old = oRow[s+"-Award_Old"];
-                        var Specification = oRow[s+"-Specification"];
-                        var Specification_Old = oRow[s+"-Specification_Old"];
-                        if(Award != Award_Old || Specification != Specification_Old){
-                            zrfpItemPriceChanged.push({
-                                "Internalid":Internalid,
-                                "Itemid":Itemid,
-                                "Supplier":supplier,
-                                "Specification":Specification,
-                                "Award":Award,
-                            })
 
-                        }
-                    }
-                })
-                //TODO: 检查同一个物料配额的和必须等于0或100%
-            });
-
-            if(zrfpItemPriceChanged && zrfpItemPriceChanged.length>0){
-                //1.设置useBatch为true
-                oRfpModel.setUseBatch(true);
-                zrfpItemPriceChanged.forEach(row=>{
-                    // 构造更新路径
-                    var sEntityPath = "/zrfp_item_priceSet(Internalid='" + row.Internalid + "',Itemid='" + row.Itemid + "',Supplier='"+row.Supplier+"')";
-                    // 执行更新操作
-                    oRfpModel.update(sEntityPath, row, {
-                        "groupId": row.Internalid+row.Itemid+row.Supplier,
-                        "changeSetId": row.Internalid+row.Itemid+row.Supplier,
-                        success: function () {
-                            console.log("更新成功：", sEntityPath);
-                            MessageToast.show(that.getResourceBundleText("updateSuccessful"));
-                        },
-                        error: function (oError) {
-                            console.error("更新失败：", oError, "路径：", sEntityPath);
-                            MessageToast.show(that.getResourceBundleText("updateFailed"));
-                        }
-                    });
-                });
-                oRfpModel.submitChanges();
-            }else{
-                MessageToast.show("您没有修改任何数据!"); 
+            // 类型转换（兼容千分位格式）
+            var cleanedValue = String(awardValue).replace(/,/g, '');
+            var parsedAward = parseFloat(cleanedValue);
+            if (isNaN(parsedAward)) {
+                errorMessages.push(
+                    that.getResourceBundleText("invalidAwardValue", [
+                        s, 
+                        String(itemid),
+                        String(itemDesc)
+                    ])
+                );
+                return;
             }
-        },
+
+            // 负值处理（允许0但不允许负数）
+            if (parsedAward < 0) {
+                errorMessages.push(
+                    that.getResourceBundleText("negativeAwardError", [
+                        s, 
+                        String(itemid),
+                        String(itemDesc)
+                    ])
+                );
+                return;
+            }
+
+            // 精度处理（保留4位小数计算）
+            parsedAward = Math.round(parsedAward * 10000) / 10000;
+            itemAwards[itemid].sum += parsedAward;
+        });
+
+        // 最终精度处理（保留2位小数显示）
+        itemAwards[itemid].sum = Math.round(itemAwards[itemid].sum * 100) / 100;
+    });
+
+    // 立即返回所有格式错误
+    if (errorMessages.length > 0) {
+        MessageToast.show(errorMessages.join("\n"));
+        return;
+    }
+
+    // 检查总和有效性
+    Object.keys(itemAwards).forEach(itemid => {
+        var total = itemAwards[itemid].sum;
+        if (total !== 0 && total !== 100) {
+            errorMessages.push(
+                that.getResourceBundleText("awardSumError", [
+                    String(itemid),
+                    String(itemAwards[itemid].name),
+                    total.toFixed(2)
+                ])
+            );
+        }
+    });
+
+    // 返回所有逻辑错误
+    if (errorMessages.length > 0) {
+        MessageToast.show(errorMessages.join("\n"));
+        return;
+    }
+
+    // 第二次循环：收集修改记录（增强字段类型转换）
+    aData.forEach(function(oRow) {
+        var Internalid = oRow.Internalid || oRow.internalid || "";
+        var Itemid = oRow.Itemid || oRow.itemid || oRow.ItemId || "";
+        
+        suppliners.forEach(s => {
+            var supplier = oRow[s + "-Supplier"];
+            if (!supplier) return;
+
+            // 安全获取字段值
+            var Award = parseFloat(oRow[s + "-Award"]) || 0;
+            var Award_Old = parseFloat(oRow[s + "-Award_Old"]) || 0;
+            var Specification = String(oRow[s + "-Specification"] || "");
+            var Specification_Old = String(oRow[s + "-Specification_Old"] || "");
+
+            // 检测变更（考虑数值精度）
+            var isAwardChanged = Math.abs(Award - Award_Old) > 0.0001;
+            var isSpecChanged = Specification !== Specification_Old;
+            
+            if (isAwardChanged || isSpecChanged) {
+                zrfpItemPriceChanged.push({
+                    Internalid: Internalid,
+                    Itemid: Itemid,
+                    Supplier: supplier,
+                    Specification: Specification,
+                    Award: Award.toFixed(4) // 保持4位小数精度
+                });
+            }
+        });
+    });
+
+    // 执行保存（增强错误处理）
+    if (zrfpItemPriceChanged.length > 0) {
+        oRfpModel.setUseBatch(true);
+        
+        zrfpItemPriceChanged.forEach(row => {
+            var sPath = `/zrfp_item_priceSet(Internalid='${row.Internalid}',Itemid='${row.Itemid}',Supplier='${row.Supplier}')`;
+            oRfpModel.update(sPath, {
+                Specification: row.Specification,
+                Award: parseFloat(row.Award)
+            }, {
+                groupId: "saveGroup",
+                success: function() {
+                    MessageToast.show(that.getResourceBundleText("updateSuccessful"));
+                },
+                error: function(oError) {
+                    var errorMsg = that.getResourceBundleText("updateFailed", [
+                        row.Supplier,
+                        row.Itemid || "N/A",
+                        oError.message || "Unknown error"
+                    ]);
+                    console.error(`Update failed for ${sPath}:`, oError);
+                    MessageToast.show(errorMsg);
+                }
+            });
+        });
+        
+        oRfpModel.submitChanges();
+    } else {
+        MessageToast.show(that.getResourceBundleText("noChangesDetected"));
+    }
+},
         onSendPress: function () {
             const that = this;
             return new Promise((resolve, reject) => {
