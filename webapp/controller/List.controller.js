@@ -17,7 +17,7 @@ sap.ui.define([
 		onInit: function() {
 			this._mDialogs = {};
 			this.aMessageFilters = [];
-			var searchCriteria = new JSONModel({"InternalId":"","Description":"","Owner":""});
+			var searchCriteria = new JSONModel({"InternalId":"","Description":"","Owner":"","Opendate":""});
 			this.getView().setModel(searchCriteria,"SearchCriteria");
 			var oModel = this.getOwnerComponent().getModel("rfp");
 			this.getView().setModel(oModel,"rfp");
@@ -39,6 +39,10 @@ sap.ui.define([
 				}
 				if(SearchCriteria.Owner){
 					oFilter = new Filter("Owner", FilterOperator.Contains, SearchCriteria.Owner);
+					oFilters.push(oFilter);
+				}
+				if(SearchCriteria.Owner){
+					oFilter = new Filter("Opendate", FilterOperator.Contains, SearchCriteria.Owner);
 					oFilters.push(oFilter);
 				}
 			}

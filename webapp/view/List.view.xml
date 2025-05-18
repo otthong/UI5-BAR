@@ -36,6 +36,11 @@
                         <m:Input placeholder="{i18n>Owner}" value="{SearchCriteria>/Owner}">
                         </m:Input>
 					</f:content>
+                    <f:content>
+					 <m:Label text="{i18n>Opendate}" />
+                        <m:Input placeholder="{i18n>Opendate}" value="{SearchCriteria>/Opendate}">
+                        </m:Input>
+					</f:content>
 		</f:SimpleForm>
 		<m:content>
 			<Table
